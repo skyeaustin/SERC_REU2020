@@ -60,7 +60,7 @@ nod4 %>%
     legend.position="none",
     plot.title = element_text(size=11)
   ) +
-  ggtitle("nodules boxplot") +
-  xlab("nitrogen treatment")
+  ylab("Number of Nodules") +
+  xlab("Treatment")
 
 
