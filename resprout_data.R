@@ -7,6 +7,9 @@ library(RColorBrewer)
 library(glmm)
 #set working directory
 setwd("~/SERC/ExperimentData_and_Code/SERC_REU2020") #Skye's desktop
+
+
+###Resprout Data Code###
 file.choose()
 respt1 <- read.csv("C:\\Users\\Airsi\\OneDrive\\Documents\\SERC\\ExperimentData_and_Code\\SERC_REU2020\\resprout_combined_SAUS_11172020.csv")
 ggqqplot(respt1$resprouts)#see if the data is normally distributed
@@ -62,3 +65,41 @@ respt3 %>%
   ggtitle("Resprouts boxplot") +
   xlab("Species")+
   ylab("Number of Resprouts")
+
+
+
+#respts by treatment#
+respt_X <- filter(respt3, treatment=="X")
+respt_N <- filter(respt3, treatment=="N")
+
+#summary for respt X
+respt_X_sum <- respt_X %>% 
+  summarise(mean_respt_X = mean(resprouts),
+            sd_respt_X = sd(resprouts),
+            n_respt_X = n(),
+            SE_respt_X = sd(resprouts)/sqrt(n())
+  )
+
+#summary for EV
+respt_N_sum <- respt_N %>% 
+  summarise(mean_respt_N = mean(resprouts),
+            sd_respt_N = sd(resprouts),
+            n_respt_N = n(),
+            SE_respt_N = sd(resprouts)/sqrt(n())
+  )
+
+#plot by treatment
+##plot resprouts by spp##
+respt3 %>%
+  ggplot(aes(x=treatment, y=resprouts, fill=resprouts)) +
+  geom_boxplot() +
+  geom_jitter(color="black", size=0.4, alpha=0.9) +
+  theme(
+    legend.position="none",
+    plot.title = element_text(size=11)
+  ) +
+  ggtitle("Resprouts boxplot") +
+  xlab("Treatment")+
+  ylab("Number of Resprouts")
+
+
