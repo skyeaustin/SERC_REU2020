@@ -52,6 +52,7 @@ nod2_N <- nod1_N %>%
 print(nod2_N)
 #c: fewer avg nods, as i thought. fewer nods, but bigger#
 
+####FIX#######################
 nod4 %>%
   ggplot(aes(x=nitrogen, y=nodules, fill=nodules)) +
   geom_boxplot() +
@@ -60,7 +61,7 @@ nod4 %>%
     legend.position="none",
     plot.title = element_text(size=11)
   ) +
-  ylab("Number of Nodules") +
-  xlab("Treatment")
-
+  ggtitle("Resprouts boxplot") +
+  xlab("Treatment Type")+
+  ylab("Number of Nodules")
 
