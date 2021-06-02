@@ -43,21 +43,43 @@ leaf5.2 <- subset(leaf4, dead=="Y", select = yard:check.notes)
 leaf6.1 <- leaf5.1 %>% 
   mutate(leaf_area = leaf_width*leaf_height)
 
-relocate(leaf6.1$leaf_area, .before = dead, .after = leaf_width) #tried to put leaf area somewhere else, doesn't work
+leaf6.1 %>% 
+  relocate(leaf6.1$leaf_area, .before = dead, .after = leaf_width) #tried to put leaf area somewhere else, doesn't work
 
 #plot by spp#
-##plot resprouts by spp##
-#leaf5.1 %>%
-  #ggplot(aes(x=plant_species, y=resprouts, fill=resprouts)) +
-  #geom_boxplot() +
-  #geom_jitter(color="black", size=0.4, alpha=0.9) +
-  #theme(
-    #legend.position="none",
-    #plot.title = element_text(size=11)
- # ) +
- # ggtitle("Resprouts boxplot") +
- # xlab("Species")+
-  #ylab("Number of Resprouts")
+leaf6.1 %>%
+  ggplot(aes(x=plant_species, y=leaf_area, fill=leaf_area)) +
+  geom_boxplot() +
+  geom_jitter(color="black", size=0.4, alpha=0.9) +
+  theme(
+    legend.position="none",
+    plot.title = element_text(size=11)
+  ) +
+  ggtitle("Leaf Area by Species") +
+  xlab("Species")+
+  ylab("Leaf Area")
 
 
-#plot by treatment#
+#plot by treatment with spp#
+leaf6.1 %>%
+  ggplot(aes(x=nitrogen, y=leaf_area, fill=plant_species)) +
+  geom_boxplot() +
+  geom_jitter(color="black", size=0.4, alpha=0.9) +
+  theme(
+    plot.title = element_text(size=11)
+  ) +
+  ggtitle("Leaf Area by Treatment") +
+  xlab("Treatment Type")+
+  ylab("Leaf Area")
+
+#spp w/treatment#
+leaf6.1 %>%
+  ggplot(aes(x=plant_species, y=leaf_area, fill=nitrogen)) +
+  geom_boxplot() +
+  geom_jitter(color="black", size=0.4, alpha=0.9) +
+  theme(
+    plot.title = element_text(size=11)
+  ) +
+  ggtitle("Leaf Area by Species") +
+  xlab("Species")+
+  ylab("Leaf Area")
