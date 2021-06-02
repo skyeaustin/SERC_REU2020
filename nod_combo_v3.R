@@ -64,4 +64,3 @@ nod4 %>%
   xlab("Treatment Type")+
   ylab("Number of Nodules")
 
-
