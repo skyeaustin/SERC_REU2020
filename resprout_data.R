@@ -7,7 +7,7 @@ library(RColorBrewer)
 
 #set working directory
 setwd("~/SERC/ExperimentData_and_Code/SERC_REU2020") #Skye's desktop
-setwd("~/Documents/r_stuff/SERC/SERC_REU2020") #skye's macbook
+setwd("~/Dropbox (Smithsonian)/SERC_REU_2020/Experiment_Data_and_R_Code/R_CODE") #skye's mac
 
 ###Resprout Data Code###
 file.choose()

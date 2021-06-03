@@ -7,12 +7,12 @@ library(RColorBrewer)
 
 #set working directory
 setwd("~/SERC/ExperimentData_and_Code/SERC_REU2020") #Skye's desktop
-setwd("~/Documents/r_stuff/SERC/SERC_REU2020") #skye's mac
+setwd("~/Dropbox (Smithsonian)/SERC_REU_2020/Experiment_Data_and_R_Code/R_CODE") #skye's mac
 
 ###Resprout Data Code###
 file.choose()
 leaf1 <- read.csv("C:\\Users\\Airsi\\OneDrive\\Documents\\SERC\\ExperimentData_and_Code\\SERC_REU2020\\leaves_datasheet_SAUS_06012021.csv") #skye's desktop
-leaf1 <- read.csv("/Users/saus/Documents/r_stuff/SERC/SERC_REU2020/leaves_datasheet_SAUS_06012021.csv") #skye's mac
+leaf1 <- read.csv("/Users/saus/Dropbox (Smithsonian)/SERC_REU_2020/Experiment_Data_and_R_Code/leaves_datasheet_SAUS_06012021.csv") #skye's mac
 ##species combination##
 leaf2 <- leaf1 %>% 
   mutate(combination = substring(pot_id, 7, 10))
@@ -44,9 +44,6 @@ leaf5.2 <- subset(leaf4, dead=="Y", select = yard:check.notes)
 leaf6.1 <- leaf5.1 %>% 
   mutate(leaf_area = leaf_width*leaf_height)
 
-leaf6.1 %>% 
-  relocate(leaf6.1$leaf_area, .before = dead, .after = leaf_width) #tried to put leaf area somewhere else, doesn't work
-
 #plot by spp#
 leaf6.1 %>%
   ggplot(aes(x=plant_species, y=leaf_area, fill=leaf_area)) +
@@ -63,7 +60,7 @@ leaf6.1 %>%
 
 #plot by treatment with spp#
 leaf6.1 %>%
-  ggplot(aes(x=nitrogen, y=leaf_area, fill=plant_species)) +
+  ggplot(aes(x=plant_species, y=leaf_area, fill=nitrogen)) +
   geom_boxplot() +
   geom_jitter(color="black", size=0.4, alpha=0.9) +
   theme(
