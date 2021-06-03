@@ -6,12 +6,12 @@ library(ggpubr)
 library(RColorBrewer)
 
 #set working directory
-setwd("~/SERC/ExperimentData_and_Code/SERC_REU2020") #Skye's desktop
+setwd("C:/Users/Airsi/Dropbox (Smithsonian)/SERC_REU_2020/Experiment_Data_and_R_Code/R_CODE") #Skye's desktop
 setwd("~/Dropbox (Smithsonian)/SERC_REU_2020/Experiment_Data_and_R_Code/R_CODE") #skye's mac
 
 ###Resprout Data Code###
 file.choose()
-respt1 <- read.csv("C:\\Users\\Airsi\\OneDrive\\Documents\\SERC\\ExperimentData_and_Code\\SERC_REU2020\\resprout_combined_SAUS_11172020.csv") #skye's desktop
+respt1 <- read.csv("C:\\Users\\Airsi\\Dropbox (Smithsonian)\\SERC_REU_2020\\Experiment_Data_and_R_Code\\Data\\Data_For_Analysis\\resprout_combined_SAUS_06032021.csv") #skye's desktop
 respt1 <- read.csv("/Users/saus/Documents/r_stuff/SERC/SERC_REU2020/resprout_combined_SAUS_11172020.csv") #skye's mac
 ggqqplot(respt1$resprouts)#see if the data is normally distributed
 shapiro.test(respt1$resprouts)#test statistical significance

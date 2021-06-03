@@ -5,12 +5,12 @@ library(dplyr)
 library(ggpubr)
 library(RColorBrewer)
 #set working directory
-setwd("~/SERC/ExperimentData_and_Code/SERC_REU2020") #Skye's desktop
+setwd(setwd("C:/Users/Airsi/Dropbox (Smithsonian)/SERC_REU_2020/Experiment_Data_and_R_Code/R_CODE")) #Skye's desktop
 setwd("~/Dropbox (Smithsonian)/SERC_REU_2020/Experiment_Data_and_R_Code/R_CODE") #skye's mac
 
 file.choose()
 #make base csv an object
-nodv3 <- read.csv("C:\\Users\\Airsi\\OneDrive\\Documents\\SERC\\ExperimentData_and_Code\\SERC_REU2020\\nodule_combined_AMH.csv") #skye's desktop
+nodv3 <- read.csv( "C:\\Users\\Airsi\\Dropbox (Smithsonian)\\SERC_REU_2020\\Experiment_Data_and_R_Code\\Data\\Data_For_Analysis\\nodule_combined_AMH.csv") #skye's desktop
 nodv3 <- read.csv("/Users/saus/Dropbox (Smithsonian)/SERC_REU_2020/Experiment_Data_and_R_Code/Data/Data_For_Analysis/nodule_combined_AMH.csv") #skye's mac
 file.choose()
 is.numeric(nodv3$nodules) #ask if the nodule column is numeric

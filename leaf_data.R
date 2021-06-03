@@ -6,12 +6,12 @@ library(ggpubr)
 library(RColorBrewer)
 
 #set working directory
-setwd("~/SERC/ExperimentData_and_Code/SERC_REU2020") #Skye's desktop
+setwd("C:/Users/Airsi/Dropbox (Smithsonian)/SERC_REU_2020/Experiment_Data_and_R_Code/R_CODE") #Skye's desktop
 setwd("~/Dropbox (Smithsonian)/SERC_REU_2020/Experiment_Data_and_R_Code/R_CODE") #skye's mac
 
 ###Resprout Data Code###
 file.choose()
-leaf1 <- read.csv("C:\\Users\\Airsi\\OneDrive\\Documents\\SERC\\ExperimentData_and_Code\\SERC_REU2020\\leaves_datasheet_SAUS_06012021.csv") #skye's desktop
+leaf1 <- read.csv("C:\\Users\\Airsi\\Dropbox (Smithsonian)\\SERC_REU_2020\\Experiment_Data_and_R_Code\\leaves_datasheet_SAUS_06012021.csv") #skye's desktop
 leaf1 <- read.csv("/Users/saus/Dropbox (Smithsonian)/SERC_REU_2020/Experiment_Data_and_R_Code/leaves_datasheet_SAUS_06012021.csv") #skye's mac
 ##species combination##
 leaf2 <- leaf1 %>% 
