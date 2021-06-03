@@ -4,14 +4,15 @@ library(tidyverse)
 library(dplyr)
 library(ggpubr)
 library(RColorBrewer)
-library(glmm)
+
 #set working directory
 setwd("~/SERC/ExperimentData_and_Code/SERC_REU2020") #Skye's desktop
-
+setwd("~/Documents/r_stuff/SERC/SERC_REU2020") #skye's mac
 
 ###Resprout Data Code###
 file.choose()
-leaf1 <- read.csv("C:\\Users\\Airsi\\OneDrive\\Documents\\SERC\\ExperimentData_and_Code\\SERC_REU2020\\leaves_datasheet_SAUS_06012021.csv")
+leaf1 <- read.csv("C:\\Users\\Airsi\\OneDrive\\Documents\\SERC\\ExperimentData_and_Code\\SERC_REU2020\\leaves_datasheet_SAUS_06012021.csv") #skye's desktop
+leaf1 <- read.csv("/Users/saus/Documents/r_stuff/SERC/SERC_REU2020/leaves_datasheet_SAUS_06012021.csv") #skye's mac
 ##species combination##
 leaf2 <- leaf1 %>% 
   mutate(combination = substring(pot_id, 7, 10))
