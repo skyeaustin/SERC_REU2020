@@ -118,3 +118,35 @@ biom5.1 %>%
 ##look at belowground biomass by treatment##
 
 
+
+#linear model??#
+biomLM <- lm(biom5.1$total_biomass ~ biom5.1$plant_species)
+summary(leafLM)
+par(mfrow = c(2,2))
+plot(leafLM)
+
+#trial 1
+glm(biom5.1$total_biomass ~ biom5.1$plant_species, family = poisson(link = "log"))
+summary(glm(biom5.1$total_biomass ~ biom5.1$plant_species, family = poisson(link = "log"))
+)
+
+anova(glm(biom5.1$total_biomass ~ biom5.1$plant_species, family = poisson(link = "log"))#doesn't work
+)
+anova(biom5.1)#doesn't work
+
+#trail 2
+glm(leaf7$total_leafnumber ~ leaf7$date + leaf7$plant_species, family = poisson(link = "log"))
+summary(glm(leaf7$total_leafnumber ~ leaf7$date + leaf7$plant_species, family = poisson(link = "log")))
+
+###stuff to try###
+#N*leaf#*time
+#leaf*combo*time
+#leaf*biomass*time
+#n*biom*spp
+#n*biom*time
+#leaf*biom*n
+#N*plant C&N
+#C&N*spp
+#respt*N
+#respt*C&N*spp
+#respt#C&N*N

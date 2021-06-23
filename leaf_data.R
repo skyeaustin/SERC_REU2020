@@ -176,6 +176,18 @@ glm(leaf7$total_leafnumber ~ leaf7$date + leaf7$plant_species, family = poisson(
 summary(glm(leaf7$total_leafnumber ~ leaf7$date + leaf7$plant_species, family = poisson(link = "log")))
 
 
+###stuff to try###
+#N*leaf#*time
+#leaf*combo*time
+#leaf*biomass*time
+#n*biom*spp
+#n*biom*time
+#leaf*biom*n
+#N*plant C&N
+#C&N*spp
+#respt*N
+#respt*C&N*spp
+#respt#C&N*N
 
 #use timepoint as random effect
 

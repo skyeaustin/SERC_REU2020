@@ -103,4 +103,15 @@ respt3 %>%
   xlab("Treatment")+
   ylab("Number of Resprouts")
 
-
+###stuff to try###
+#N*leaf#*time
+#leaf*combo*time
+#leaf*biomass*time
+#n*biom*spp
+#n*biom*time
+#leaf*biom*n
+#N*plant C&N
+#C&N*spp
+#respt*N
+#respt*C&N*spp
+#respt#C&N*N
