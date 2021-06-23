@@ -9,7 +9,7 @@ library(RColorBrewer)
 setwd("C:/Users/Airsi/Dropbox (Smithsonian)/SERC_REU_2020/Experiment_Data_and_R_Code/R_CODE") #Skye's desktop
 setwd("~/Dropbox (Smithsonian)/SERC_REU_2020/Experiment_Data_and_R_Code/R_CODE") #skye's mac
 
-###Resprout Data Code###
+###leaves Data Code###
 file.choose()
 leaf1 <- read.csv("C:\\Users\\Airsi\\Dropbox (Smithsonian)\\SERC_REU_2020\\Experiment_Data_and_R_Code\\leaves_datasheet_SAUS_06012021.csv") #skye's desktop
 leaf1 <- read.csv("/Users/saus/Dropbox (Smithsonian)/SERC_REU_2020/Experiment_Data_and_R_Code/leaves_datasheet_SAUS_06012021.csv") #skye's mac
@@ -107,3 +107,21 @@ leaf6.1 %>%
   xlab("Species")+
   ylab("Number of Emerged Leaves") ##how to get multiple 3rd axis?
 
+##add total leaves column##
+leaf7 <- leaf6.1 %>% 
+  mutate(total_leafnumber=leaves_emerged+leaves_emerging)
+ 
+#total leaf number by species over time# 
+leaf7 %>% 
+  ggplot(aes(x=date, y=total_leafnumber, fill=plant_species, color=plant_species),
+         leaf7+scale_color_manual(values=c("#69b3a2", "purple", "black")))+ #this line does nothing lol
+  geom_jitter()+
+  theme(
+    plot.title = element_text(size=11),
+  ) +
+  ggtitle("Total leaves over time") +
+  xlab("time")+
+  ylab("Number of Leaves")
+##why does total leaf number go down at the last date?##
+
+#abline is linear model
