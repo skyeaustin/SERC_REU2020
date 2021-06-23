@@ -124,4 +124,63 @@ leaf7 %>%
   ylab("Number of Leaves")
 ##why does total leaf number go down at the last date?##
 
-#abline is linear model
+#total leaves over time by nitrogen (ni)
+leaf7 %>% 
+  ggplot(aes(x=date, y=total_leafnumber, fill=nitrogen, color=nitrogen),
+         leaf7+scale_color_manual(values=c("#69b3a2", "purple", "black")))+ #this line does nothing lol
+  geom_jitter()+
+  theme(
+    plot.title = element_text(size=11),
+  ) +
+  ggtitle("Total leaves over time") +
+  xlab("time")+
+  ylab("Number of Leaves")
+
+#leaf area over time by spp (ni)
+leaf7 %>% 
+  ggplot(aes(x=date, y=leaf_area, fill=plant_species, color=plant_species),
+         leaf7+scale_color_manual(values=c("#69b3a2", "purple", "black")))+ #this line does nothing lol
+  geom_jitter()+
+  theme(
+    plot.title = element_text(size=11),
+  ) +
+  ggtitle("Total leaves over time") +
+  xlab("time")+
+  ylab("Number of Leaves")
+
+#leaf area over time by treatment (ni)
+leaf7 %>% 
+  ggplot(aes(x=date, y=leaf_area, fill=nitrogen, color=nitrogen),
+         leaf7+scale_color_manual(values=c("#69b3a2", "purple", "black")))+ #this line does nothing lol
+  geom_jitter()+
+  theme(
+    plot.title = element_text(size=11),
+  ) +
+  ggtitle("Total leaves over time") +
+  xlab("time")+
+  ylab("Number of Leaves")
+
+#linear model??#
+leafLM <- lm(leaf7$total_leafnumber ~ leaf7$date + leaf7$nitrogen)
+summary(leafLM)
+par(mfrow = c(2,2))
+plot(leafLM)
+
+#trial 1
+glm(leaf7$total_leafnumber ~ leaf7$date + leaf7$nitrogen, family = poisson(link = "log"))
+summary(glm(leaf7$total_leafnumber ~ leaf7$date + leaf7$nitrogen, family = poisson(link = "log"))
+)
+
+#trail 2
+glm(leaf7$total_leafnumber ~ leaf7$date + leaf7$plant_species, family = poisson(link = "log"))
+summary(glm(leaf7$total_leafnumber ~ leaf7$date + leaf7$plant_species, family = poisson(link = "log")))
+
+
+
+#use timepoint as random effect
+
+
+
+
+
+

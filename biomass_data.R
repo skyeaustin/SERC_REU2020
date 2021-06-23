@@ -108,7 +108,6 @@ biom5.1 %>%
   geom_boxplot() +
   geom_jitter(color="black", size=0.4, alpha=0.9) +
   theme(
-    legend.position="none",
     plot.title = element_text(size=11)
   ) +
   ggtitle("Total Biomass by Species") +
