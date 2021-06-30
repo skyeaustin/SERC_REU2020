@@ -23,9 +23,16 @@ plant4 <- select(plant3, -starts_with("X"))
 
 plant4$height <- as.numeric(as.character(plant4$height)) #make height column numeric
 
+plant5 <- plant4 %>% 
+  mutate(nitrogen = substring(pot_id, 5,5))
+
 ##volume column##
 plant5 <- plant4 %>% 
   mutate(plant_volume = height*width_max*width_perp)
+
+plant5 <- plant4 %>% 
+  mutate(nitrogen = substring(pot_id, 5,5))
+##every time i add a column, i have to run this again^
 
 #height, combo
 plant5 %>%
@@ -79,23 +86,42 @@ summary(glm(plant5$height ~ plant5$date + plant5$plant_species, family = poisson
 #survivability
 #i want plant survivability x spp, and plant surv x spp x treatment
 #how??
+table(plant5$dead)
 
-#spp treatment survival
-plant5 %>%
-  ggplot(aes(x=nitrogen, y=dead, fill=plant_species, shape=plant_species, size=plant_species)) +
-  geom_jitter(color="black", size=0.7, alpha=0.9) +
-  theme(
-    plot.title = element_text(size=11)
-  ) +
-  ggtitle("Leaf Area by Species") +
-  xlab("Species")+
-  ylab("Leaf Area")
+plant6 <- plant5 %>% 
+  subset(plant5$date == "8/5/2020")
+
+plant7 <- plant6 %>% 
+  group_by(plant6$plant_species)
+
+cnsub <- plant6 %>% 
+  subset(plant6$plant_species=="Chamaecrista nictitans")
+
+efsub <- plant6 %>% 
+  subset(plant6$plant_species=="Eutrochium fistulosum")
+
+evsub <- plant6 %>% 
+  subset(plant6$plant_species=="Elymus virginicus")
+
+
+species <- c("Cn", "Ef", "Ev")
+alive <- c(108, 102, 118)
+dead <- c(12, 18, 2)
+
+surv_frame <- data.frame(species, alive, dead)
+
+##code!
+species<-rep(c("Cn","Ef","Ev"),2)
+surv<-c(rep("alive",3),rep("dead",3))
+val<-c(108,102,118,12,18,2)
+ndat<-data.frame(species,surv,val)
+ggplot(ndat,aes(species,val, group=surv))+geom_bar(stat="identity", position=position_dodge(),aes(fill=as.factor(surv)))
 
 
 
 
 
-     
+
      
      
      
