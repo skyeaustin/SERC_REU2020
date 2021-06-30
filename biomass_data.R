@@ -83,7 +83,6 @@ biom5.1 %>%
   geom_boxplot() +
   geom_jitter(color="black", size=0.4, alpha=0.9) +
   theme(
-    legend.position="none",
     plot.title = element_text(size=11)
   ) +
   ggtitle("Aboveground Biomass by Species") +
@@ -117,26 +116,30 @@ biom5.1 %>%
 
 ##look at belowground biomass by treatment##
 
+#chisq test
+biomCSQ1 <- chisq.test(biom5.1$total_biomass, biom5.1$nitrogen) #not significant
+biomCSQ2 <- chisq.test(biom5.1$plant_species, biom5.1$total_biomass) #not significant
 
 
 #linear model??#
 biomLM <- lm(biom5.1$total_biomass ~ biom5.1$plant_species)
-summary(leafLM)
+summary(biomLM)
 par(mfrow = c(2,2))
-plot(leafLM)
+plot(biomLM)
 
 #trial 1
 glm(biom5.1$total_biomass ~ biom5.1$plant_species, family = poisson(link = "log"))
 summary(glm(biom5.1$total_biomass ~ biom5.1$plant_species, family = poisson(link = "log"))
 )
 
+#not sure if this did/does anything or works
 anova(glm(biom5.1$total_biomass ~ biom5.1$plant_species, family = poisson(link = "log"))#doesn't work
-)
+) 
 anova(biom5.1)#doesn't work
 
-#trail 2
-glm(leaf7$total_leafnumber ~ leaf7$date + leaf7$plant_species, family = poisson(link = "log"))
-summary(glm(leaf7$total_leafnumber ~ leaf7$date + leaf7$plant_species, family = poisson(link = "log")))
+#trial 2
+glm(biom5.1$total_biomass ~ biom5.1$nitrogen, family = poisson(link = "log"))
+summary(glm(biom5.1$total_biomass ~ biom5.1$nitrogen, family = poisson(link = "log"))) #not significant
 
 ###stuff to try###
 #N*leaf#*time

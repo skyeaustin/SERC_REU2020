@@ -9,10 +9,10 @@ library(RColorBrewer)
 setwd("C:/Users/Airsi/Dropbox (Smithsonian)/SERC_REU_2020/Experiment_Data_and_R_Code/R_CODE") #Skye's desktop
 setwd("~/Dropbox (Smithsonian)/SERC_REU_2020/Experiment_Data_and_R_Code/R_CODE") #skye's mac
 
-###leaves Data Code###
-file.choose()
+#read base csv
 leaf1 <- read.csv("C:\\Users\\Airsi\\Dropbox (Smithsonian)\\SERC_REU_2020\\Experiment_Data_and_R_Code\\leaves_datasheet_SAUS_06012021.csv") #skye's desktop
 leaf1 <- read.csv("/Users/saus/Dropbox (Smithsonian)/SERC_REU_2020/Experiment_Data_and_R_Code/leaves_datasheet_SAUS_06012021.csv") #skye's mac
+
 ##species combination##
 leaf2 <- leaf1 %>% 
   mutate(combination = substring(pot_id, 7, 10))
@@ -32,7 +32,9 @@ leaf4$leaves_dead <- as.numeric(as.character(leaf4$leaves_dead))
 
 #stat tests#
 ggqqplot(leaf4$leaves_emerged)#see if the data is normally distributed
+    #not normally distributed
 shapiro.test(leaf4$leaf_height)#test statistical significance
+    #significant, but probably missing something (like a variable?)
 
 #set of alive plants#
 leaf5.1 <- subset(leaf4, dead == "N", select = yard:check.notes)
@@ -40,7 +42,7 @@ leaf5.1 <- subset(leaf4, dead == "N", select = yard:check.notes)
 #set of dead plants#
 leaf5.2 <- subset(leaf4, dead=="Y", select = yard:check.notes)
 
-##make leaf area column?##
+#make leaf area column#
 leaf6.1 <- leaf5.1 %>% 
   mutate(leaf_area = leaf_width*leaf_height)
 
@@ -66,9 +68,9 @@ leaf6.1 %>%
   theme(
     plot.title = element_text(size=11)
   ) +
-  ggtitle("Leaf Area by Treatment") +
-  xlab("Treatment Type")+
-  ylab("Leaf Area")
+  ggtitle("Leaf Area by Species") +
+  xlab("Species")+
+  ylab("Leaf Area")                                 ##these are both the same but different?????
 
 #spp w/treatment#
 leaf6.1 %>%
@@ -94,6 +96,7 @@ leaf6.1 %>%
   xlab("Species")+
   ylab("Leaf Area")
 
+###don't think this is helpful, keeping it in case###
 ##to do: leaf status by spp and by treatment (and yard?#
 leaf6.1 %>%
   ggplot(aes(x=plant_species, y=leaves_emerged, fill=leaves_emerged)) +
@@ -106,10 +109,25 @@ leaf6.1 %>%
   ggtitle("Emerged Leaves by Species") +
   xlab("Species")+
   ylab("Number of Emerged Leaves") ##how to get multiple 3rd axis?
+##########
 
 ##add total leaves column##
 leaf7 <- leaf6.1 %>% 
   mutate(total_leafnumber=leaves_emerged+leaves_emerging)
+
+#total leaf number x treatment
+leaf7 %>%
+  ggplot(aes(x=nitrogen, y=total_leafnumber, fill=plant_species)) +
+  geom_boxplot() +
+  geom_jitter(color="black", size=0.4, alpha=0.9) +
+  theme(
+    legend.position="none",
+    plot.title = element_text(size=11)
+  ) +
+  ggtitle("Total Leaf Number by Treatment") +
+  xlab("Treatment")+
+  ylab("Number of Emerged Leaves")
+#####this plot is so bad i'm keeping it to laugh at it#####
  
 #total leaf number by species over time# 
 leaf7 %>% 
@@ -122,6 +140,7 @@ leaf7 %>%
   ggtitle("Total leaves over time") +
   xlab("time")+
   ylab("Number of Leaves")
+####this is the worst plot i've ever seen please fix this####
 ##why does total leaf number go down at the last date?##
 
 #total leaves over time by nitrogen (ni)
@@ -135,6 +154,7 @@ leaf7 %>%
   ggtitle("Total leaves over time") +
   xlab("time")+
   ylab("Number of Leaves")
+####this is the worst plot i've ever seen please fix this####
 
 #leaf area over time by spp (ni)
 leaf7 %>% 
@@ -147,6 +167,7 @@ leaf7 %>%
   ggtitle("Total leaves over time") +
   xlab("time")+
   ylab("Number of Leaves")
+####this is the worst plot i've ever seen please fix this####
 
 #leaf area over time by treatment (ni)
 leaf7 %>% 
@@ -159,6 +180,10 @@ leaf7 %>%
   ggtitle("Total leaves over time") +
   xlab("time")+
   ylab("Number of Leaves")
+####this is the worst plot i've ever seen please fix this####
+
+
+
 
 #linear model??#
 leafLM <- lm(leaf7$total_leafnumber ~ leaf7$date + leaf7$nitrogen)

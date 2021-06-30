@@ -9,14 +9,15 @@ library(RColorBrewer)
 setwd("C:/Users/Airsi/Dropbox (Smithsonian)/SERC_REU_2020/Experiment_Data_and_R_Code/R_CODE") #Skye's desktop
 setwd("~/Dropbox (Smithsonian)/SERC_REU_2020/Experiment_Data_and_R_Code/R_CODE") #skye's mac
 
-###Resprout Data Code###
-file.choose()
+#read base csv
 respt1 <- read.csv("C:\\Users\\Airsi\\Dropbox (Smithsonian)\\SERC_REU_2020\\Experiment_Data_and_R_Code\\Data\\Data_For_Analysis\\resprout_combined_SAUS_06032021.csv") #skye's desktop
-respt1 <- read.csv("/Users/saus/Documents/r_stuff/SERC/SERC_REU2020/resprout_combined_SAUS_11172020.csv") #skye's mac
+respt1 <- read.csv("/Users/saus/Documents/r_stuff/SERC/csvs/resprout_combined_SAUS_11172020.csv") #skye's mac
+
+#distribution and significance
 ggqqplot(respt1$resprouts)#see if the data is normally distributed
 shapiro.test(respt1$resprouts)#test statistical significance
+    #significant, but probably missing something (like a variable?)
 
-#add treatment#
 ##nitrogen treatment##
 respt2 <- respt1 %>% 
   mutate(treatment = substring(pot_id, 5,5))
@@ -63,7 +64,7 @@ respt3 %>%
     legend.position="none",
     plot.title = element_text(size=11)
   ) +
-  ggtitle("Resprouts boxplot") +
+  ggtitle("Resprouts Boxplot") +
   xlab("Species")+
   ylab("Number of Resprouts")
 
@@ -90,7 +91,6 @@ respt_N_sum <- respt_N %>%
   )
 
 #plot by treatment
-##plot resprouts by spp##
 respt3 %>%
   ggplot(aes(x=treatment, y=resprouts, fill=resprouts)) +
   geom_boxplot() +
@@ -99,8 +99,33 @@ respt3 %>%
     legend.position="none",
     plot.title = element_text(size=11)
   ) +
-  ggtitle("Resprouts boxplot") +
+  ggtitle("Number of Resprouts by Treatment") +
   xlab("Treatment")+
+  ylab("Number of Resprouts")
+
+##plot resprouts by spp and treatment##
+respt3 %>%
+  ggplot(aes(x=plant_species, y=resprouts, fill=treatment)) +
+  geom_boxplot() +
+  geom_jitter(color="black", size=0.4, alpha=0.9) +
+  theme(
+    plot.title = element_text(size=11)
+  ) +
+  ggtitle("Number of Resprouts by Species") +
+  xlab("Species")+
+  ylab("Number of Resprouts")
+
+#plot resprouts and spp
+respt3 %>%
+  ggplot(aes(x=plant_species, y=resprouts, fill=resprouts)) +
+  geom_boxplot() +
+  geom_jitter(color="black", size=0.4, alpha=0.9) +
+  theme(
+    legend.position = "none",
+    plot.title = element_text(size=11)
+  ) +
+  ggtitle("Number of Resprouts by Species") +
+  xlab("Species")+
   ylab("Number of Resprouts")
 
 ###stuff to try###
