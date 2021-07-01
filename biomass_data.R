@@ -230,6 +230,8 @@ biom6 %>%
   xlab("Combination")+
   ylab("Biomass (g)")
 
+
+
 ###stuff to try###
 #N*leaf#*time
 #leaf*combo*time
