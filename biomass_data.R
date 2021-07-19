@@ -8,6 +8,7 @@ library(RColorBrewer)
 #set working directory
 setwd("C:/Users/Airsi/Dropbox (Smithsonian)/SERC_REU_2020/Experiment_Data_and_R_Code/R_CODE") #Skye's desktop
 setwd("~/Dropbox (Smithsonian)/SERC_REU_2020/Experiment_Data_and_R_Code/R_CODE") #skye's mac
+setwd("C:/Users/hrusk/Dropbox (Smithsonian)/SERC_REU_2020/Experiment_Data_and_R_Code/Data/Data_For_Analysis") #amy's laptop
 
 #choose file#
 biom1 <- read.csv("C:\\Users\\Airsi\\Dropbox (Smithsonian)\\SERC_REU_2020\\Experiment_Data_and_R_Code\\Data\\Data_For_Analysis\\plant_biomass_all.csv") #skye's desktop
@@ -40,10 +41,12 @@ biom6 <- na.omit(biom5)
 ggqqplot(biom6$above_biomass_g)
 ggqqplot(biom6$below_biomass_g)
 ggqqplot(biom6$total_biomass)
+
 #statistical significance#
 shapiro.test(biom6$above_biomass_g) #p==< 2.2e-16
 shapiro.test(biom6$below_biomass_g) #p==< 2.2e-16
 shapiro.test(biom6$total_biomass) #p==< 2.2e-16
+
 #t.tests and aov's#
 t.test(biom6$total_biomass~biom5.1$nitrogen) #p==0.4472
 t.test(biom6$above_biomass_g~biom5.1$nitrogen)#p==0.9636
@@ -54,6 +57,7 @@ tc <- aov(biom6$total_biomass~biom6$combination) #p==0.00234
 as <- aov(biom6$above_biomass_g~biom6$plant_species) #p==6.31e-12
 bs <- aov(biom6$below_biomass_g~biom6$plant_species) #p==3.85e-11
 ts <- aov(biom6$total_biomass~biom6$plant_species) #p==3.5e-08
+
 #chisq test#
 biomCSQ1 <- chisq.test(biom6$total_biomass, biom6$nitrogen) 
 biomCSQ2 <- chisq.test(biom6$plant_species, biom6$total_biomass) 
