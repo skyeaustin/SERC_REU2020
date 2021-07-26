@@ -4,7 +4,7 @@ library(tidyverse)
 library(dplyr)
 library(ggpubr)
 library(RColorBrewer)
-
+library(rcompanion)
 #set working directory
 setwd("C:/Users/Airsi/Dropbox (Smithsonian)/SERC_REU_2020/Experiment_Data_and_R_Code/R_CODE") #Skye's desktop
 setwd("~/Dropbox (Smithsonian)/SERC_REU_2020/Experiment_Data_and_R_Code/R_CODE") #skye's mac
@@ -27,6 +27,8 @@ biom4 <- biom3 %>%
 #make total biomass column#
 biom5 <- biom4 %>% 
   mutate(total_biomass = above_biomass_g+below_biomass_g)
+
+
 #make columns numeric#
 biom5$above_biomass_g <- as.numeric(as.character(biom5$above_biomass_g))
 biom5$below_biomass_g <- as.numeric(as.character(biom5$below_biomass_g))
@@ -34,35 +36,69 @@ biom5$total_biomass <- as.numeric(as.character(biom5$total_biomass))
 
 #alive plant set#
 biom6 <- na.omit(biom5)
+#yard column#
+biom6$yard = substring(biom6$pot_id, 12,14)
 
 ##stat tests##
 #normal distribution
 ggqqplot(biom6$above_biomass_g)
 ggqqplot(biom6$below_biomass_g)
 ggqqplot(biom6$total_biomass)
+#transform, since non-normal
+biom6$tukey_ab = transformTukey(biom6$above_biomass_g)
+biom6$tukey_bb = transformTukey(biom6$below_biomass_g)
+biom6$tukey_tb = transformTukey(biom6$total_biomass)
+ggqqplot(biom6$tukey_ab)
+ggqqplot(biom6$tukey_bb)
+ggqqplot(biom6$tukey_tb)
 #statistical significance#
-shapiro.test(biom6$above_biomass_g) #p==< 2.2e-16
-shapiro.test(biom6$below_biomass_g) #p==< 2.2e-16
-shapiro.test(biom6$total_biomass) #p==< 2.2e-16
+shapiro.test(biom6$tukey_ab) #p==< 2.2e-16==raw, tukey==0.5536
+shapiro.test(biom6$tukey_bb) #p==< 2.2e-16==raw, tukey==0.0011
+shapiro.test(biom6$tukey_tb) #p==< 2.2e-16==raw, tukey==0.168
 #t.tests and aov's#
-t.test(biom6$total_biomass~biom5.1$nitrogen) #p==0.4472
-t.test(biom6$above_biomass_g~biom5.1$nitrogen)#p==0.9636
-t.test(biom6$below_biomass_g~biom5.1$nitrogen)#p==0.1601
-ac <- aov(biom6$above_biomass_g~biom6$combination) #p==1.49e-05
-bc <- aov(biom6$below_biomass_g~biom6$combination) #p==7.93e-05
-tc <- aov(biom6$total_biomass~biom6$combination) #p==0.00234
-as <- aov(biom6$above_biomass_g~biom6$plant_species) #p==6.31e-12
-bs <- aov(biom6$below_biomass_g~biom6$plant_species) #p==3.85e-11
-ts <- aov(biom6$total_biomass~biom6$plant_species) #p==3.5e-08
-#chisq test#
-biomCSQ1 <- chisq.test(biom6$total_biomass, biom6$nitrogen) 
-biomCSQ2 <- chisq.test(biom6$plant_species, biom6$total_biomass) 
-    #not sure what these did
+t.test(biom6$tukey_tb~biom6$nitrogen) #p==0.4472==raw, tukey==0.5909
+t.test(biom6$tukey_ab~biom6$nitrogen)#p==0.9636==raw, tukey==0.9036
+t.test(biom6$tukey_bb~biom6$nitrogen)#p==0.1601==raw, tukey==0.5897
+t.test(biom6$above_biomass_g~biom6$mono_hetero)#p==0.626==raw, tukey==0.6666
+t.test(biom6$below_biomass_g~biom6$mono_hetero)#p==0.09197==raw, tukey==0.1055
+t.test(biom6$total_biomass~biom6$mono_hetero)#p==0.5674==raw, tukey==0.7648
+ac <- aov(biom6$tukey_ab~biom6$combination) #p==1.49e-05==raw, tukey==4.51e-07
+bc <- aov(biom6$tukey_bb~biom6$combination) #p==7.93e-05==raw, tukey==2.38e-06
+tc <- aov(biom6$tukey_tb~biom6$combination) #p==0.00234==raw, tukey==0.0103
+as <- aov(biom6$tukey_ab~biom6$plant_species) #p==6.31e-12, tukey==4.96e-11
+bs <- aov(biom6$tukey_bb~biom6$plant_species) #p==3.85e-11, tukey==6.64e-14
+ts <- aov(biom6$tukey_tb~biom6$plant_species) #p==3.5e-08, tukey==4.25e-06
+#ANOVA's
+biomaov <- aov(biom6$total_biomass ~ biom6$nitrogen*biom6$plant_species*biom6$combination*biom6$mono_hetero*biom6$yard)
+    #spp, yard, n*spp, spp*yard, trending or significant
+tukeybiomaov <- biomaov <- aov(biom6$tukey_tb ~ biom6$nitrogen*biom6$plant_species*biom6$combination*biom6$mono_hetero*biom6$yard)
+    #spp, yard, n*spp, spp*yard, trending or significant
+
+#take out yard?
+biomaov1 <- aov(biom6$total_biomass ~ biom6$nitrogen*biom6$plant_species*biom6$combination*biom6$mono_hetero)
+    #spp, n*spp, spp*combo trending or significant
+tukeybiomaov1 <- biomaov <- aov(biom6$tukey_tb ~ biom6$nitrogen*biom6$plant_species*biom6$combination*biom6$mono_hetero)
+    #spp significant
+
+#take out species
+biomaov2 <- aov(biom6$total_biomass ~ biom6$nitrogen*biom6$combination*biom6$mono_hetero)
+    #combo significant
+tukeybiomaov2 <- biomaov <- aov(biom6$tukey_tb ~ biom6$nitrogen*biom6$combination*biom6$mono_hetero)
+    #combo significant, n*combo trending
+
+#take out combo
+biomaov3 <- aov(biom6$total_biomass ~ biom6$nitrogen*biom6$mono_hetero)
+    #nothing
+tukeybiomaov3 <- biomaov <- aov(biom6$tukey_tb ~ biom6$nitrogen*biom6$mono_hetero)
+    #nothing
+
+
 #models#
-biomLM_spp <- lm(biom5.1$total_biomass ~ biom5.1$plant_species)
+biomLM_spp <- lm(biom6$total_biomass ~ biom6$plant_species)
 summary(biomLM_spp)
 par(mfrow = c(2,2))
 plot(biomLM_spp)
+plot(residuals(biomLM_spp))
 
 biomLM_combo <- lm(biom5.1$total_biomass ~ biom5.1$combination)
 summary(biomLM_combo)

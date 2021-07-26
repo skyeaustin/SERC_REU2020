@@ -33,9 +33,9 @@ plant7 <- plant6 %>%
 ##stat tests##
 #test for normal distribution#
 ggqqplot(plant6$height) 
-ggqqplot(plant7$plant_volume) 
+ggqqplot(plant6$plant_volume) 
 ggqqplot(plant7$height) 
-ggqqplot(plant7$plant_volume) #all look normal
+ggqqplot(plant7$plant_volume)
 #test for significance#
 shapiro.test(plant6$height) #p==< 2.2e-16
 shapiro.test(plant6$plant_volume) #p==< 2.2e-16

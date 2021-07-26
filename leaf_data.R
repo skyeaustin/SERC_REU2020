@@ -44,6 +44,36 @@ leaf7 <- leaf6 %>%
 leaf8 <- leaf7 %>% 
   subset(leaf7$date == "8/3/2020")
 
+##transform data##
+#leaf area#
+#last date
+plotNormalHistogram(leaf8$leaf_area)
+leaf9 <- leaf8 %>% 
+  mutate(sqrt_la = sqrt(leaf_area))
+plotNormalHistogram(leaf9$sqrt_la)
+leaf10 <- leaf9 %>% 
+  mutate(tukey_la = transformTukey(leaf_area))
+plotNormalHistogram(leaf10$tukey_la)
+
+#all dates
+plotNormalHistogram(leaf8$leaf_area)
+leaf9a <- leaf7 %>% 
+  mutate(sqrt_la = sqrt(leaf_area))
+plotNormalHistogram(leaf9$sqrt_la)
+leaf10a <- leaf9a %>% 
+  mutate(tukey_la = transformTukey(leaf_area))
+plotNormalHistogram(leaf10$tukey_la)
+
+#total leaf number#
+plotNormalHistogram(leaf8$total_leafnumber)
+leaf9b <- leaf8 %>% 
+  mutate(sqrt_tln = sqrt(total_leafnumber))
+plotNormalHistogram(leaf9.1$sqrt_tln)
+leaf10b <- leaf9b %>% 
+  mutate(tukey_tln = transformTukey(total_leafnumber))
+plotNormalHistogram(leaf10.1$total_leafnumber)
+#nothing worked :/
+
 ###from here: leaf7 is all dates, leaf8 is a subset of the last date##
 
 ##stat tests##
@@ -52,11 +82,18 @@ ggqqplot(leaf7$leaves_emerged)
 ggqqplot(leaf8$leaves_emerged)
 ggqqplot(leaf7$total_leafnumber)
 ggqqplot(leaf8$total_leafnumber)
+ggqqplot(leaf7$leaf_area)
+ggqqplot(leaf8$leaf_area)
+
+ggqqplot(leaf10$tukey_la) #normal!! :)
+ggqqplot(leaf10a$tukey_la)
 #test statistical significance
 shapiro.test(leaf8$leaf_height)
 shapiro.test(leaf7$leaf_height)
 shapiro.test(leaf8$total_leafnumber)
 shapiro.test(leaf7$total_leafnumber)
+
+shapiro.test(leaf10$tukey_la) #p-value = 0.00128
 #significant, but probably missing something (like a variable?)
 
 
@@ -226,3 +263,22 @@ leaf8 %>%
   ggtitle("Leaf Area by Species") +
   xlab("Species")+
   ylab("Leaf Area")
+
+
+
+
+
+
+
+
+
+lm_tln <- lm(leaf7$total_leafnumber~leaf7$date)
+plot(lm_tln)
+hist(residuals(lm_tln))
+residuals(lm_tln)
+plot(lm_tln$residuals, pch = 16, col = "red")
+
+
+
+
+

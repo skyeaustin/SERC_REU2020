@@ -28,6 +28,21 @@ nod3 <- nod2 %>%
 ##remove dead plants##
 nod4 <- subset(nod3, nodules != "NA", select = yard:notes)
 
+##transform data##
+plotNormalHistogram(nod4$nodules)
+nod5a <- nod4 %>% 
+  mutate(log_nod = log(x = nodules))
+plotNormalHistogram(nod5a$log_nod)
+nod5b <- nod4 %>% 
+  mutate(sqrt_nod = sqrt(nodules))
+plotNormalHistogram(nod5b$sqrt_nod)
+nod5c <- nod4 %>% 
+  mutate(tukey_nod = transformTukey(nodules))
+plotNormalHistogram(nod5c$tukey_nod)
+#none of these work well
+hist(log(nod4$nodules+1))
+
+
 ##stat tests##
 #test for normal distribution#
 ggqqplot(nod4$nodules)
@@ -87,4 +102,13 @@ nod4 %>%
 #CnEf combo looks interesting
 
 
+
+
+
+
+lm_nod <- lm(nod5c$tukey_nod~nod5c$date)
+plot(lm_nod)
+hist(residuals(lm_nod))
+residuals(lm_nod)
+plot(nod5c$tukey_nod, pch = 16, col = "black")
 
