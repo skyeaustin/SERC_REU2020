@@ -11,8 +11,7 @@ setwd("~/Dropbox (Smithsonian)/SERC_REU_2020/Experiment_Data_and_R_Code/R_CODE")
 setwd("C:/Users/hrusk/Dropbox (Smithsonian)/SERC_REU_2020/Experiment_Data_and_R_Code/Data/Data_For_Analysis") #amy's laptop
 # amys_branch
 setwd("C:/Users/hruskaa/Dropbox (Smithsonian)/SERC_REU_2020/Experiment_Data_and_R_Code/Data/Data_For_Analysis") #amy's SERC desktop
-#
-# main
+
 
 #choose file#
 biom1 <- read.csv("C:\\Users\\Airsi\\Dropbox (Smithsonian)\\SERC_REU_2020\\Experiment_Data_and_R_Code\\Data\\Data_For_Analysis\\plant_biomass_all.csv") #skye's desktop
@@ -367,13 +366,45 @@ summary(model4)
 anova(model4)
 anova.lme(model4)
 
-######## transformed aboveground biomass no random or nested effects ##########
+######## transformed belowground biomass no random or nested effects ##########
 model5 <- lm(tukey_bb ~ yard*nitrogen*mono_hetero*plant_species, data = biom6)
 summary(model5)
 anova(model5)
 
-######## transformed aboveground biomass pot as random effect #########
+######## transformed belowground biomass pot as random effect #########
 model6 <- lme(tukey_bb ~ yard*nitrogen*mono_hetero*plant_species, data = biom6, random = ~1|pot_id)
 summary(model6)
 anova(model6)
 anova.lme(model6)
+
+
+########### Biomass Bar Graphs Based on Analyses ###########
+
+##bar graph summary statistics function from Kim 
+#barGraphStats(data=, variable="", byFactorNames=c(""))
+barGraphStats <- function(data, variable, byFactorNames) {
+  count <- length(byFactorNames)
+  N <- aggregate(data[[variable]], data[byFactorNames], FUN=length)
+  names(N)[1:count] <- byFactorNames
+  names(N) <- sub("^x$", "N", names(N))
+  mean <- aggregate(data[[variable]], data[byFactorNames], FUN=mean)
+  names(mean)[1:count] <- byFactorNames
+  names(mean) <- sub("^x$", "mean", names(mean))
+  sd <- aggregate(data[[variable]], data[byFactorNames], FUN=sd)
+  names(sd)[1:count] <- byFactorNames
+  names(sd) <- sub("^x$", "sd", names(sd))
+  preSummaryStats <- merge(N, mean, by=byFactorNames)
+  finalSummaryStats <- merge(preSummaryStats, sd, by=byFactorNames)
+  finalSummaryStats$se <- finalSummaryStats$sd / sqrt(finalSummaryStats$N)
+  return(finalSummaryStats)
+}  
+ 
+
+### figure - belowground biomass vs. species by nitrogen ###
+
+ggplot(data = barGraphStats(data = biom6, variable = "tukey_bb", byFactorNames = c("nitrogen", "plant_species")), aes(x=plant_species, y=mean, fill=nitrogen)) +
+    geom_bar(stat='identity', position=position_dodge()) +
+    geom_errorbar(aes(ymin=mean-se, ymax=mean+se), width = 0.2, position = position_dodge(0.9)) +
+    scale_fill_brewer(palette = "Set1") +
+    ylab("Tukey Transformed Belowground Biomass") + xlab
+
