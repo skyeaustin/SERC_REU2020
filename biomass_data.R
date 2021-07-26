@@ -19,8 +19,7 @@ biom1 <- read.csv("C:\\Users\\Airsi\\Dropbox (Smithsonian)\\SERC_REU_2020\\Exper
 biom1 <- read.csv("/Users/saus/Dropbox (Smithsonian)/SERC_REU_2020/Experiment_Data_and_R_Code/Data/Data_For_Analysis/plant_biomass_all.csv") #skye's mac
 # amys_branch
 biom1 <- read.csv("plant_biomass_all.csv") ### amy's computers ###
-=======
-# main
+
 
 #remove weird columns#
 biom1.5 <- select(biom1, -starts_with("X"))
@@ -346,15 +345,35 @@ library(devtools) #simplify r commands
 #### Total biomass ANOVA with transform Tukey data ####
 #######################################################
 
-######## no random or nested effects ##########
+######## transformed total biomass no random or nested effects ##########
 model1 <- lm(tukey_tb ~ yard*nitrogen*mono_hetero*plant_species, data = biom6)
 summary(model1)
+anova(model1)
 
-######## pot as random effect #########
+######## transformed total biomass pot as random effect #########
 model2 <- lme(tukey_tb ~ yard*nitrogen*mono_hetero*plant_species, data = biom6, random = ~1|pot_id)
 summary(model2)
 anova(model2)
+anova.lme(model2)
 
+######## transformed aboveground biomass no random or nested effects ##########
+model3 <- lm(tukey_ab ~ yard*nitrogen*mono_hetero*plant_species, data = biom6)
+summary(model3)
+anova(model3)
 
-#
-# main
+######## transformed aboveground biomass pot as random effect #########
+model4 <- lme(tukey_ab ~ yard*nitrogen*mono_hetero*plant_species, data = biom6, random = ~1|pot_id)
+summary(model4)
+anova(model4)
+anova.lme(model4)
+
+######## transformed aboveground biomass no random or nested effects ##########
+model5 <- lm(tukey_bb ~ yard*nitrogen*mono_hetero*plant_species, data = biom6)
+summary(model5)
+anova(model5)
+
+######## transformed aboveground biomass pot as random effect #########
+model6 <- lme(tukey_bb ~ yard*nitrogen*mono_hetero*plant_species, data = biom6, random = ~1|pot_id)
+summary(model6)
+anova(model6)
+anova.lme(model6)
