@@ -11,7 +11,7 @@ setwd("~/Dropbox (Smithsonian)/SERC_REU_2020/Experiment_Data_and_R_Code/R_CODE")
 setwd("C:/Users/hrusk/Dropbox (Smithsonian)/SERC_REU_2020/Experiment_Data_and_R_Code/Data/Data_For_Analysis") #amy's laptop
 # amys_branch
 setwd("C:/Users/hruskaa/Dropbox (Smithsonian)/SERC_REU_2020/Experiment_Data_and_R_Code/Data/Data_For_Analysis") #amy's SERC desktop
-
+setwd("~/Documents/Data") #Rachael's working directory
 
 #choose file#
 biom1 <- read.csv("C:\\Users\\Airsi\\Dropbox (Smithsonian)\\SERC_REU_2020\\Experiment_Data_and_R_Code\\Data\\Data_For_Analysis\\plant_biomass_all.csv") #skye's desktop
@@ -381,7 +381,7 @@ anova.lme(model6)
 ########### Biomass Bar Graphs Based on Analyses ###########
 
 ##bar graph summary statistics function from Kim 
-#barGraphStats(data=, variable="", byFactorNames=c(""))
+barGraphStats(data=, variable="", byFactorNames=c(""))
 barGraphStats <- function(data, variable, byFactorNames) {
   count <- length(byFactorNames)
   N <- aggregate(data[[variable]], data[byFactorNames], FUN=length)
@@ -406,5 +406,5 @@ ggplot(data = barGraphStats(data = biom6, variable = "tukey_bb", byFactorNames =
     geom_bar(stat='identity', position=position_dodge()) +
     geom_errorbar(aes(ymin=mean-se, ymax=mean+se), width = 0.2, position = position_dodge(0.9)) +
     scale_fill_brewer(palette = "Set1") +
-    ylab("Tukey Transformed Belowground Biomass") + xlab
+    ylab("Tukey Transformed Belowground Biomass") + xlab("species")
 
