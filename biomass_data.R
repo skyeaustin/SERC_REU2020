@@ -1,84 +1,106 @@
+#############################################
+#############################################
+#############################################
+############ Summer 2020 Biomass ############
+######## Data Exploration & Analysis ########
+#############################################
+#############################################
+#############################################
+
+
 #load packages
-library(ggplot2)
-library(tidyverse)
-library(dplyr)
-library(ggpubr)
-library(RColorBrewer)
-library(rcompanion)
+library(tidyverse) # for data organization, manipulation, & visualization; includes ggplot2 and dplyr # 
+library(ggpubr) # for customizing plots made with ggplot2
+library(RColorBrewer) # color palettes for graphing
+library(rcompanion) # for nomality tests and transformations
+library(nlme) # for mixed linear and generalized linear models
+library(lme4) # for mixed linear and generalized linear models
+library(devtools) # simplify r commands
+
 #set working directory
 setwd("C:/Users/Airsi/Dropbox (Smithsonian)/SERC_REU_2020/Experiment_Data_and_R_Code/R_CODE") #Skye's desktop
 setwd("~/Dropbox (Smithsonian)/SERC_REU_2020/Experiment_Data_and_R_Code/R_CODE") #skye's mac
 setwd("C:/Users/hrusk/Dropbox (Smithsonian)/SERC_REU_2020/Experiment_Data_and_R_Code/Data/Data_For_Analysis") #amy's laptop
-# amys_branch
 setwd("C:/Users/hruskaa/Dropbox (Smithsonian)/SERC_REU_2020/Experiment_Data_and_R_Code/Data/Data_For_Analysis") #amy's SERC desktop
 setwd("~/Documents/Data") #Rachael's working directory
 
-#choose file#
+#Skye Choose file#
 biom1 <- read.csv("C:\\Users\\Airsi\\Dropbox (Smithsonian)\\SERC_REU_2020\\Experiment_Data_and_R_Code\\Data\\Data_For_Analysis\\plant_biomass_all.csv") #skye's desktop
 biom1 <- read.csv("/Users/saus/Dropbox (Smithsonian)/SERC_REU_2020/Experiment_Data_and_R_Code/Data/Data_For_Analysis/plant_biomass_all.csv") #skye's mac
-# amys_branch
+
+#Amy choose file#
 biom1 <- read.csv("plant_biomass_all.csv") ### amy's computers ###
 
 
-#remove weird columns#
+#################################
+####### Data manipulation #######
+#################################
+
+## remove weird columns ##
 biom1.5 <- select(biom1, -starts_with("X"))
-##species combination##
+
+## species combination ##
 biom2<- biom1.5 %>% 
   mutate(combination = substring(pot_id, 7, 10))
-##hetero v. con specific##
+
+## hetero v. con specific ##
 biom3 <- biom2%>% 
   mutate(mono_hetero = if_else(biom2$combination %in% c("EpEV", "CnEv", "CnEp"), "hetero", "mono"))
-##nitrogen treatment##
+ 
+## nitrogen treatment ##
 biom4 <- biom3 %>% 
   mutate(nitrogen = substring(pot_id, 5,5))
-#make total biomass column#
+
+## make total biomass column ##
 biom5 <- biom4 %>% 
   mutate(total_biomass = above_biomass_g+below_biomass_g)
 
 
-#make columns numeric#
+## as if something is numeric, character, factor, integer ## 
+is.numeric(biom5$above_biomass_g)
+
+## define columns as numeric ##
 biom5$above_biomass_g <- as.numeric(as.character(biom5$above_biomass_g))
 biom5$below_biomass_g <- as.numeric(as.character(biom5$below_biomass_g))
 biom5$total_biomass <- as.numeric(as.character(biom5$total_biomass))
 
-#alive plant set#
+## remove dead plants ##
 biom6 <- na.omit(biom5)
-#yard column#
+
+## create yard column ##
 biom6$yard = substring(biom6$pot_id, 12,14)
 
-##stat tests##
-#normal distribution
+## normality tests ## 
 ggqqplot(biom6$above_biomass_g)
 ggqqplot(biom6$below_biomass_g)
 ggqqplot(biom6$total_biomass)
-# HEAD
+
+shapiro.test(biom6$above_biomass_g)
+shapiro.test(biom6$below_biomass_g)
+shapiro.test(biom6$total_biomass)
+
 #transform, since non-normal
 biom6$tukey_ab = transformTukey(biom6$above_biomass_g)
 biom6$tukey_bb = transformTukey(biom6$below_biomass_g)
 biom6$tukey_tb = transformTukey(biom6$total_biomass)
-ggqqplot(biom6$tukey_ab)
-ggqqplot(biom6$tukey_bb)
-ggqqplot(biom6$tukey_tb)
-#amys_branch
+
 
 # store transformTukey lambda values #
-
 tukey_ab_lambda <- transformTukey(biom6$tukey_ab, returnLambda = TRUE)
 tukey_bb_lambda <- transformTukey(biom6$tukey_bb, returnLambda = TRUE)
 tukey_tb_lambda <- transformTukey(biom6$total_biomass, returnLambda = TRUE)
-  
-#statistical significance#
-shapiro.test(biom6$tukey_ab) #p==< 2.2e-16==raw, tukey==0.5536 ##### INCORRECT VALUES? #####
-shapiro.test(biom6$tukey_bb) #p==< 2.2e-16==raw, tukey==0.0011 ##### INCORRECT VALUES? #####
-shapiro.test(biom6$tukey_tb) #p==< 2.2e-16==raw, tukey==0.168  ##### INCORRECT VALUES? #####
 
-#
-#statistical significance#
+
+# normality after transformTukey #
+ggqqplot(biom6$tukey_ab)
+ggqqplot(biom6$tukey_bb)
+ggqqplot(biom6$tukey_tb)
+
 shapiro.test(biom6$tukey_ab) #p==< 2.2e-16==raw, tukey==0.5536
 shapiro.test(biom6$tukey_bb) #p==< 2.2e-16==raw, tukey==0.0011
 shapiro.test(biom6$tukey_tb) #p==< 2.2e-16==raw, tukey==0.168
-# main
-#t.tests and aov's#
+
+# Skye t.tests and aov's#
 t.test(biom6$tukey_tb~biom6$nitrogen) #p==0.4472==raw, tukey==0.5909
 t.test(biom6$tukey_ab~biom6$nitrogen)#p==0.9636==raw, tukey==0.9036
 t.test(biom6$tukey_bb~biom6$nitrogen)#p==0.1601==raw, tukey==0.5897
@@ -138,11 +160,8 @@ ts <- aov(biom6$total_biomass~biom6$plant_species) #p==3.5e-08
 biomCSQ1 <- chisq.test(biom6$total_biomass, biom6$nitrogen) 
 biomCSQ2 <- chisq.test(biom6$plant_species, biom6$total_biomass) 
     #not sure what these did
-# 2efb86d9b9f0da91d328e619d95eb33f35c055ad
-# amys_branch
 
-#
-# main
+
 #models#
 biomLM_spp <- lm(biom6$total_biomass ~ biom6$plant_species)
 summary(biomLM_spp)
@@ -354,6 +373,8 @@ model2 <- lme(tukey_tb ~ yard*nitrogen*mono_hetero*plant_species, data = biom6, 
 summary(model2)
 anova(model2)
 anova.lme(model2)
+
+
 
 ######## transformed aboveground biomass no random or nested effects ##########
 model3 <- lm(tukey_ab ~ yard*nitrogen*mono_hetero*plant_species, data = biom6)
