@@ -12,7 +12,7 @@
 library(tidyverse) # for data organization, manipulation, & visualization; includes ggplot2 and dplyr # 
 library(ggpubr) # for customizing plots made with ggplot2
 library(RColorBrewer) # color palettes for graphing
-library(rcompanion) # for nomality tests and transformations
+library(rcompanion) # for normality tests and transformations
 library(nlme) # for mixed linear and generalized linear models
 library(lme4) # for mixed linear and generalized linear models
 library(devtools) # simplify r commands
@@ -22,7 +22,7 @@ setwd("C:/Users/Airsi/Dropbox (Smithsonian)/SERC_REU_2020/Experiment_Data_and_R_
 setwd("~/Dropbox (Smithsonian)/SERC_REU_2020/Experiment_Data_and_R_Code/R_CODE") #skye's mac
 setwd("C:/Users/hrusk/Dropbox (Smithsonian)/SERC_REU_2020/Experiment_Data_and_R_Code/Data/Data_For_Analysis") #amy's laptop
 setwd("C:/Users/hruskaa/Dropbox (Smithsonian)/SERC_REU_2020/Experiment_Data_and_R_Code/Data/Data_For_Analysis") #amy's SERC desktop
-setwd("~/Documents/Data") #Rachael's working directory
+
 
 #Skye Choose file#
 biom1 <- read.csv("C:\\Users\\Airsi\\Dropbox (Smithsonian)\\SERC_REU_2020\\Experiment_Data_and_R_Code\\Data\\Data_For_Analysis\\plant_biomass_all.csv") #skye's desktop
@@ -31,7 +31,7 @@ biom1 <- read.csv("/Users/saus/Dropbox (Smithsonian)/SERC_REU_2020/Experiment_Da
 #Amy choose file#
 biom1 <- read.csv("plant_biomass_all.csv") ### amy's computers ###
 
-################################
+
 #################################
 ####### Data manipulation #######
 #################################
@@ -402,7 +402,7 @@ anova.lme(model6)
 ########### Biomass Bar Graphs Based on Analyses ###########
 
 ##bar graph summary statistics function from Kim 
-barGraphStats(data=, variable="", byFactorNames=c(""))
+#barGraphStats(data=, variable="", byFactorNames=c(""))
 barGraphStats <- function(data, variable, byFactorNames) {
   count <- length(byFactorNames)
   N <- aggregate(data[[variable]], data[byFactorNames], FUN=length)
@@ -427,5 +427,5 @@ ggplot(data = barGraphStats(data = biom6, variable = "tukey_bb", byFactorNames =
     geom_bar(stat='identity', position=position_dodge()) +
     geom_errorbar(aes(ymin=mean-se, ymax=mean+se), width = 0.2, position = position_dodge(0.9)) +
     scale_fill_brewer(palette = "Set1") +
-    ylab("Tukey Transformed Belowground Biomass") + xlab("species")
+    ylab("Tukey Transformed Belowground Biomass") + xlab
 
