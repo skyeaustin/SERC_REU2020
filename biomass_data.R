@@ -31,7 +31,7 @@ biom1 <- read.csv("/Users/saus/Dropbox (Smithsonian)/SERC_REU_2020/Experiment_Da
 #Amy choose file#
 biom1 <- read.csv("plant_biomass_all.csv") ### amy's computers ###
 
-
+################################
 #################################
 ####### Data manipulation #######
 #################################
