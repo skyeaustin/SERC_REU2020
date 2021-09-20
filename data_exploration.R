@@ -7,7 +7,7 @@ library(RColorBrewer)
 library(ggpubr)
 
 ## bar graph summary statistics function from Kim ##
-barGraphStats(data=, variable="", byFactorNames=c(""))
+#barGraphStats(data=, variable="", byFactorNames=c(""))
 barGraphStats <- function(data, variable, byFactorNames) {
   count <- length(byFactorNames)
   N <- aggregate(data[[variable]], data[byFactorNames], FUN=length)

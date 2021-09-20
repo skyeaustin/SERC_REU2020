@@ -368,35 +368,46 @@ model1 <- lm(tukey_tb ~ yard*nitrogen*mono_hetero*plant_species, data = biom6)
 summary(model1)
 anova(model1)
 
-######## transformed total biomass pot as random effect #########
-model2 <- lme(tukey_tb ~ yard*nitrogen*mono_hetero*plant_species, data = biom6, random = ~1|pot_id)
+######## transformed total biomass with pot as random effect #########
+model2 <- lmer(tukey_tb ~ yard*nitrogen*mono_hetero*plant_species +(1|pot_id), data = biom6)
 summary(model2)
 anova(model2)
-anova.lme(model2)
+qqmath(ranef(model2)) #looking at pot_id as random effect
 
+######## transformed total biomass with yard as random effect #########
+model3 <- lmer(tukey_tb ~ nitrogen*plant_species*mono_hetero + (1|yard), data = biom6)
+summary(model3)
+anova(model3)
+qqmat(ranef(model3))
+
+######## transformed total biomass with pot_id and yard as random effect #########
+model4 <- lmer(tukey_tb ~ nitrogen*plant_species*mono_hetero + (1|yard) + (1|pot_id), data = biom6)
+summary(model4)
+anova(model4)
+qqmath(ranef(model4))
 
 
 ######## transformed aboveground biomass no random or nested effects ##########
-model3 <- lm(tukey_ab ~ yard*nitrogen*mono_hetero*plant_species, data = biom6)
-summary(model3)
-anova(model3)
-
-######## transformed aboveground biomass pot as random effect #########
-model4 <- lme(tukey_ab ~ yard*nitrogen*mono_hetero*plant_species, data = biom6, random = ~1|pot_id)
-summary(model4)
-anova(model4)
-anova.lme(model4)
-
-######## transformed belowground biomass no random or nested effects ##########
-model5 <- lm(tukey_bb ~ yard*nitrogen*mono_hetero*plant_species, data = biom6)
+model5 <- lm(tukey_ab ~ yard*nitrogen*mono_hetero*plant_species, data = biom6)
 summary(model5)
 anova(model5)
 
-######## transformed belowground biomass pot as random effect #########
-model6 <- lme(tukey_bb ~ yard*nitrogen*mono_hetero*plant_species, data = biom6, random = ~1|pot_id)
+######## transformed aboveground biomass pot and yard as random effect #########
+model6 <- lmer(tukey_ab ~ nitrogen*mono_hetero*plant_species + (1|pot_id) + (1|yard), data = biom6)
 summary(model6)
 anova(model6)
 anova.lme(model6)
+
+######## transformed belowground biomass no random or nested effects ##########
+model7 <- lm(tukey_bb ~ yard*nitrogen*mono_hetero*plant_species, data = biom6)
+summary(model7)
+anova(model7)
+
+######## transformed belowground biomass pot as random effect #########
+model8 <- lmer(tukey_bb ~ nitrogen*mono_hetero*plant_species + (1|pot_id) + (1|yard), data = biom6)
+summary(model8)
+anova(model8)
+
 
 
 ########### Biomass Bar Graphs Based on Analyses ###########
@@ -423,9 +434,26 @@ barGraphStats <- function(data, variable, byFactorNames) {
 
 ### figure - belowground biomass vs. species by nitrogen ###
 
-ggplot(data = barGraphStats(data = biom6, variable = "tukey_bb", byFactorNames = c("nitrogen", "plant_species")), aes(x=plant_species, y=mean, fill=nitrogen)) +
-    geom_bar(stat='identity', position=position_dodge()) +
-    geom_errorbar(aes(ymin=mean-se, ymax=mean+se), width = 0.2, position = position_dodge(0.9)) +
-    scale_fill_brewer(palette = "Set1") +
-    ylab("Tukey Transformed Belowground Biomass") + xlab
+yard_tb <- ggplot(data = barGraphStats(data = biom6, variable = "tukey_tb", byFactorNames = c("yard", "plant_species")), aes(x=plant_species, y=mean, fill=yard)) +
+  geom_bar(stat='identity', position=position_dodge()) +
+  geom_errorbar(aes(ymin=mean-se, ymax=mean+se), width = 0.2, position = position_dodge(0.9)) +
+  scale_fill_brewer(palette = "Set1") +
+  ylab("Tukey Transformed Total Biomass") + xlab("Species")
 
+ggplot(data = barGraphStats(data = biom6, variable = "total_biomass", byFactorNames = c("nitrogen", "plant_species")), aes(x=plant_species, y=mean, fill=nitrogen)) +
+  geom_bar(stat='identity', position=position_dodge()) +
+  geom_errorbar(aes(ymin=mean-se, ymax=mean+se), width = 0.2, position = position_dodge(0.9)) +
+  scale_fill_brewer(palette = "Set1") +
+  ylab("Total Biomass") + xlab("Species")
+
+ggplot(data = barGraphStats(data = biom6, variable = "total_biomass", byFactorNames = c("nitrogen", "plant_species")), aes(x=plant_species, y=mean, fill=nitrogen)) +
+  geom_bar(stat='identity', position=position_dodge()) +
+  geom_errorbar(aes(ymin=mean-se, ymax=mean+se), width = 0.2, position = position_dodge(0.9)) +
+  scale_fill_brewer(palette = "Set1") +
+  ylab("Total Biomass") + xlab("Nitrogen")
+
+ggplot(data = barGraphStats(data = biom6, variable = "tukey_bb", byFactorNames = c("nitrogen", "plant_species")), aes(x=plant_species, y=mean, fill=nitrogen)) +
+  geom_bar(stat='identity', position=position_dodge()) +
+  geom_errorbar(aes(ymin=mean-se, ymax=mean+se), width = 0.2, position = position_dodge(0.9)) +
+  scale_fill_brewer(palette = "Set1") +
+  ylab("Tukey Transformed Belowground Biomass") + xlab("Nitrogen")
