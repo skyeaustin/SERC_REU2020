@@ -9,6 +9,7 @@ library(ggpubr)
 setwd("~/Documents/Data") #working directory
 
 biom1 <- read.csv("plant_biomass_all.csv") ### amy's computers ###
+biom1 <- read.csv("/Users/saus/Dropbox (Smithsonian)/SERC_REU_2020/Experiment_Data_and_R_Code/Data/Data_For_Analysis/plant_biomass_all.csv") #skye's mac
 
 # remove weird columns ##
 biom1.5 <- select(biom1, -starts_with("X"))
@@ -82,3 +83,7 @@ g2 <- ggplot(data = barGraphStats(data = biom6, variable = "total_biomass", byFa
   scale_fill_brewer(palette = "Set1") + xlab("Nitrogen") + ylab("Total Biomass")
 
 g2 + theme(panel.background = element_blank(), panel.grid.major = element_blank(), panel.grid.minor = element_blank(), axis.line = element_line(colour = "black"), text = element_text(size = 24),axis.title.y = element_text(margin = margin(t = 0, r = 10, b = 0, l = 0)), axis.title.x = element_text(margin = margin(t = 10, r = 0, b = 0, l = 0)), legend.position = "none")
+
+
+
+#manova: get all the sheets together and test w/all y vars
