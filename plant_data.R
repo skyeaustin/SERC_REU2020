@@ -47,9 +47,9 @@ shapiro.test(plant7$tukey_height) #p==0.05789
 shapiro.test(plant7$tukey_vol) #p==0.006434
 
 #models#
-lmer_h <- lmer(data = plant7, tukey_height~nitrogen*combination + (1|yard) + (1|plant_species))
-  #n==trend, combo==signif
-lmer_vol <- lmer(data = plant7, tukey_vol~nitrogen*combination + (1|yard) + (1|plant_species))
+lmer_h <- lmer(data = plant7, tukey_height~nitrogen*combination + (1|yard) + (1|plant_species) + (1|pot_id))
+  #n==trend, combo==signif without pot as random factor. only combo sig w/pot as random factor
+lmer_vol <- lmer(data = plant7, tukey_vol~nitrogen*combination + (1|yard) + (1|plant_species) + (1|pot_id))
   #combo==signif
 test <- lmer(data = plant7, tukey_height~nitrogen*combination + (1|yard) + (1|plant_species) + (1|pot_id))
   #combo==signif
@@ -66,34 +66,10 @@ plant7 %>%
   ggtitle("Height by Combonation") +
   xlab("Combonation")+
   ylab("Height") 
-  
-  plant7 %>%
-    ggplot(aes(x=combination, y=height, fill=combination)) +
-    geom_boxplot(outlier.shape = NA) +
-    geom_jitter(color="black", size=0.4, alpha=0.9, position = position_jitter(seed = 1)) +
-    theme(
-      legend.position = "none",
-      plot.title = element_text(size=11)
-    ) +
-    ggtitle("Height by Combonation") +
-    xlab("Combonation")+
-    ylab("Height") 
 
 #volume by combonation# 
-plant6 %>%
-  ggplot(aes(x=combination, y=plant_volume, fill=combination)) +
-  geom_boxplot(outlier.shape = NA) +
-  geom_jitter(color="black", size=0.4, alpha=0.9, position = position_jitter(seed = 1)) +
-  theme(
-    legend.position = "none",
-    plot.title = element_text(size=11)
-  ) +
-  ggtitle("Volume by Combonation") +
-  xlab("Combonation")+
-  ylab("Volume")
-
 plant7 %>%
-  ggplot(aes(x=combination, y=plant_volume, fill=combination)) +
+  ggplot(aes(x=combination, y=tukey_vol, fill=combination)) +
   geom_boxplot(outlier.shape = NA) +
   geom_jitter(color="black", size=0.4, alpha=0.9, position = position_jitter(seed = 1)) +
   theme(
