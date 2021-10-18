@@ -4,9 +4,10 @@ library(tidyverse)
 library(dplyr)
 library(ggpubr)
 library(RColorBrewer)
+library(moments)
 
 #set working directory
-setwd(setwd("C:/Users/Airsi/Dropbox (Smithsonian)/SERC_REU_2020/Experiment_Data_and_R_Code/R_CODE")) #Skye's desktop
+setwd("C:/Users/Airsi/Dropbox (Smithsonian)/SERC_REU_2020/Experiment_Data_and_R_Code/R_CODE")) #Skye's desktop
 setwd("~/Dropbox (Smithsonian)/SERC_REU_2020/Experiment_Data_and_R_Code/R_CODE") #skye's mac
 
 
@@ -28,20 +29,17 @@ nod3 <- nod2 %>%
 ##remove dead plants##
 nod4 <- subset(nod3, nodules != "NA", select = yard:notes)
 
-##transform data##
-plotNormalHistogram(nod4$nodules)
-nod5a <- nod4 %>% 
-  mutate(log_nod = log(x = nodules))
-plotNormalHistogram(nod5a$log_nod)
-nod5b <- nod4 %>% 
-  mutate(sqrt_nod = sqrt(nodules))
-plotNormalHistogram(nod5b$sqrt_nod)
-nod5c <- nod4 %>% 
-  mutate(tukey_nod = transformTukey(nodules))
-plotNormalHistogram(nod5c$tukey_nod)
-#none of these work well
-hist(log(nod4$nodules+1))
+test = lm(plant7$nodules~nitrogen + yard, data=plant7)
 
+nodmod1 <-  glm(nodules ~ mono_hetero*nitrogen + yard, family = poisson, data = nod4)
+confint(nodmod1)
+nodmod2 <-  glm(nodules ~ mono_hetero*nitrogen, family = poisson, data = nod4)
+
+
+##transform data##
+ggqqplot(nod4$nodules)
+plotNormalHistogram(nod4$nodules)
+skewness(nod4$nodules, na.rm = TRUE)
 
 ##stat tests##
 #test for normal distribution#
@@ -111,4 +109,16 @@ plot(lm_nod)
 hist(residuals(lm_nod))
 residuals(lm_nod)
 plot(nod5c$tukey_nod, pch = 16, col = "black")
+
+
+nod_lm1 <- lm(nodules ~ combination, data=nod4) 
+nod_resid<- resid(nod_lm1)
+#We now plot the residual against the observed values of the variable waiting.
+plot(nod4$combination, nod_resid, 
+     ylab="Residuals", xlab="Waiting Time", 
+     main="Old Faithful Eruptions") 
+abline(0, 0)                  # the horizon
+
+
+
 

@@ -459,6 +459,7 @@ ggplot(data = barGraphStats(data = biom6, variable = "tukey_bb", byFactorNames =
   geom_errorbar(aes(ymin=mean-se, ymax=mean+se), width = 0.2, position = position_dodge(0.9)) +
   scale_fill_brewer(palette = "Set1") +
   ylab("Tukey Transformed Belowground Biomass") + xlab("Nitrogen")
+<<<<<<< HEAD
 
 ggplot(data = barGraphStats(data = biom6, variable = "tukey_tb", byFactorNames = c("nitrogen", "mono_hetero", "plant_species")), aes(x=mono_he, y=mean, fill=nitrogen)) +
   geom_bar(stat='identity', position=position_dodge()) +
@@ -474,3 +475,5 @@ ggplot(data = barGraphStats(data = biom6, variable = "tukey_bb", byFactorNames =
   ylab("Tukey Transformed Below Biomass") + xlab("combination")+
   facet_wrap(~plant_species)
 
+=======
+>>>>>>> 8469a8bbabf362f5dded9f65c7238a7b8d5314ab
