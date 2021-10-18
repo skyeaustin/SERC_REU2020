@@ -7,7 +7,7 @@ library(RColorBrewer)
 library(moments)
 
 #set working directory
-setwd(setwd("C:/Users/Airsi/Dropbox (Smithsonian)/SERC_REU_2020/Experiment_Data_and_R_Code/R_CODE")) #Skye's desktop
+setwd("C:/Users/Airsi/Dropbox (Smithsonian)/SERC_REU_2020/Experiment_Data_and_R_Code/R_CODE")) #Skye's desktop
 setwd("~/Dropbox (Smithsonian)/SERC_REU_2020/Experiment_Data_and_R_Code/R_CODE") #skye's mac
 
 
@@ -29,24 +29,16 @@ nod3 <- nod2 %>%
 ##remove dead plants##
 nod4 <- subset(nod3, nodules != "NA", select = yard:notes)
 
+test = lm(plant7$nodules~nitrogen + yard, data=plant7)
+
+nodmod1 <-  glm(nodules ~ mono_hetero*nitrogen + yard, family = poisson, data = nod4)
+confint(nodmod1)
+nodmod2 <-  glm(nodules ~ mono_hetero*nitrogen, family = poisson, data = nod4)
+
+
 ##transform data##
 ggqqplot(nod4$nodules)
 plotNormalHistogram(nod4$nodules)
-skewness(nod4$nodules, na.rm = TRUE)
-
-nod4$sqt_nod = sqrt(nod4$nodules)
-ggqqplot(nod4$sqt_nod)
-plotNormalHistogram(nod4$sqt_nod)
-skewness(nod4$sqt_nod, na.rm = TRUE)
-
-nod4$log_nod = sqrt(nod4$nodules)
-ggqqplot(nod4$log_nod)
-plotNormalHistogram(nod4$log_nod)
-skewness(nod4$log_nod, na.rm = TRUE)
-
-nod4$sqt_nod = sqrt(nod4$nodules)
-ggqqplot(nod4$sqt_nod)
-plotNormalHistogram(nod4$sqt_nod)
 skewness(nod4$nodules, na.rm = TRUE)
 
 ##stat tests##
