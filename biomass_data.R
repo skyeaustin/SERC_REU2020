@@ -48,7 +48,6 @@ biom3 <- biom2%>%
   mutate(mono_hetero = if_else(biom2$combination %in% c("EpEV", "CnEv", "CnEp"), "hetero", "mono"))
  
 ## nitrogen treatment ##
-
 biom4 <- biom3 %>% 
   mutate(nitrogen = substring(pot_id, 5,5))
 
@@ -56,8 +55,7 @@ biom4 <- biom3 %>%
 biom5 <- biom4 %>% 
   mutate(total_biomass = above_biomass_g+below_biomass_g)
 
-
-## as if something is numeric, character, factor, integer ## 
+## ask if something is numeric, character, factor, integer ## 
 is.numeric(biom5$above_biomass_g)
 
 ## define columns as numeric ##

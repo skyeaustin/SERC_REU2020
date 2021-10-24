@@ -42,41 +42,33 @@ plant7$tukey_height = transformTukey(plant7$height) #transform to fit normality
 ggqqplot(plant7$plant_volume)
 plant7$tukey_vol = transformTukey(plant7$plant_volume) #transform to fit normality
 
+#save lambda)#
+tukey_height_lambda <- transformTukey(plant7$height, returnLambda = TRUE)
+tukey_vol_lambda <- transformTukey(plant7$plant_volume, returnLambda = TRUE)
+
+
 #test for significance/normality#
 shapiro.test(plant7$tukey_height) #p==0.05789
 shapiro.test(plant7$tukey_vol) #p==0.006434
 
 #models#
 #plant height by n*combo
-lmer_h1 <- lmer(data = plant7, tukey_height~nitrogen*combination + (1|yard))
-lmer_h2 <- lmer(data = plant7, tukey_height~nitrogen*combination + (1|yard) + (1|plant_species))
-lmer_h3 <- lmer(data = plant7, tukey_height~nitrogen*combination + (1|yard) + (1|plant_species) + (1|pot_id))
-lmer_h4 <- lmer(data = plant7, tukey_height~nitrogen*combination + (1|yard) + (1|pot_id))
+lmer_h_ncomb <- lmer(data = plant7, tukey_height~nitrogen*combination + (1|yard))
 
 #plant vol by n*combo
-lmer_vol1 <- lmer(data = plant7, tukey_vol~nitrogen*combination + (1|yard))
-lmer_vol2 <- lmer(data = plant7, tukey_vol~nitrogen*combination + (1|yard) + (1|plant_species))
-lmer_vol3 <- lmer(data = plant7, tukey_vol~nitrogen*combination + (1|yard) + (1|plant_species) + (1|pot_id))
-lmer_vol4 <- lmer(data = plant7, tukey_vol~nitrogen*combination + (1|yard) + (1|pot_id))
- 
+lmer_vol_ncomb <- lmer(data = plant7, tukey_vol~nitrogen*combination + (1|yard))
+
 #plant height by n*mono/het
-lmer_h1 <- lmer(data = plant7, tukey_height~nitrogen*mono_hetero + (1|yard))
-lmer_h2 <- lmer(data = plant7, tukey_height~nitrogen*mono_hetero + (1|yard) + (1|pot_id))
-lmer_h3 <- lmer(data = plant7, tukey_height~nitrogen*mono_hetero + (1|yard) + (1|plant_species))
-lmer_h4 <- lmer(data = plant7, tukey_height~nitrogen*mono_hetero + (1|yard) + (1|plant_species) + (1|pot_id))
+lmer_h_nmonhet <- lmer(data = plant7, tukey_height~nitrogen*mono_hetero + (1|yard))
 
 #plant vol by n*mono/het
-lmer_vol1 <- lmer(data = plant7, tukey_vol~nitrogen*mono_hetero + (1|yard))
-lmer_vol2 <- lmer(data = plant7, tukey_vol~nitrogen*mono_hetero + (1|yard) + (1|pot_id))
-lmer_vol3 <- lmer(data = plant7, tukey_vol~nitrogen*mono_hetero + (1|yard) + (1|plant_species))
-lmer_vol4 <- lmer(data = plant7, tukey_vol~nitrogen*mono_hetero + (1|yard) + (1|plant_species) + (1|pot_id))
-
+lmer_vol_nmonhet <- lmer(data = plant7, tukey_vol~nitrogen*mono_hetero + (1|yard))
 
 #height by combonation#
 plant7 %>%
   ggplot(aes(x=combination, y=tukey_height, fill=combination)) +
     geom_boxplot(outlier.shape = NA) +
-  scale_fill_manual(values = c("#461763", "#C0F500", "#0F83C6", "#06C679", "#9A8CF8", "#BCC20A"))+
+  scale_fill_manual(values = c("#461763", "#C0F500", "#0F83C6", "#149F86", "#596475", "#FBE118"))+
     geom_jitter(color="black", size=0.4, alpha=0.9, position = position_jitter(seed = 1)) +
   theme(
     legend.position = "none",
@@ -84,13 +76,13 @@ plant7 %>%
   ) +
   ggtitle("Height by Combonation") +
   xlab("Combonation")+
-  ylab("Height") 
+  ylab("Height (cm)") 
 
 #volume by combonation# 
 plant7 %>%
   ggplot(aes(x=combination, y=tukey_vol, fill=combination)) +
   geom_boxplot(outlier.shape = NA) +
-  scale_fill_manual(values = c("#461763", "#C0F500", "#0F83C6", "#06C679", "#9A8CF8", "#BCC20A"))+
+  scale_fill_manual(values = c("#461763", "#C0F500", "#0F83C6", "#149F86", "#596475", "#FBE118"))+
   geom_jitter(color="black", size=0.4, alpha=0.9, position = position_jitter(seed = 1)) +
   theme(
     legend.position = "none",
@@ -98,7 +90,7 @@ plant7 %>%
   ) +
   ggtitle("Volume by Combonation") +
   xlab("Combonation")+
-  ylab("Volume")
+  ylab("Volume (cm^3)")
 
 #volume by species#
 plant7 %>%
@@ -112,7 +104,7 @@ plant7 %>%
   ) +
   ggtitle("Plant Volume by Species") +
   xlab("Species")+
-  ylab("Volume")
+  ylab("Volume (cm^3)")
 
 #plant height by species#
 plant7 %>%
@@ -126,35 +118,71 @@ plant7 %>%
   ) +
   ggtitle("Plant Height by Species") +
   xlab("Species")+
-  ylab("Height")
+  ylab("Height (cm)")
 
 #height by mono/het
 plant7 %>%
-  ggplot(aes(x=mono_hetero, y=tukey_height, fill=mono_hetero)) +
+  ggplot(aes(x=mono_hetero, y=tukey_height, fill=plant_species)) +
   geom_boxplot(outlier.shape = NA) +
-  scale_fill_manual(values = c("#461763", "#C0F500"))+
+  scale_fill_manual(values = c("#461763", "#C0F500", "#0F83C6"))+
   geom_jitter(color="black", size=0.4, alpha=0.9, position = position_jitter(seed = 1)) +
   theme(
-    legend.position = "none",
-    plot.title = element_text(size=11)
+    plot.title = element_text(size=11),
+    legend.key.size = unit(0.5, "cm"),
+    legend.title = element_text( size=7), 
+    legend.text=element_text(size=7),
   ) +
   ggtitle("Height by Specificity") +
   xlab("Specificity")+
-  ylab("Height") 
+  ylab("Height (cm)") 
 
 #volume by mono/het
 plant7 %>%
-  ggplot(aes(x=mono_hetero, y=tukey_vol, fill=mono_hetero)) +
+  ggplot(aes(x=mono_hetero, y=tukey_vol, fill=plant_species)) +
   geom_boxplot(outlier.shape = NA) +
-  scale_fill_manual(values = c("#461763", "#C0F500"))+
+  scale_fill_manual(values = c("#461763", "#C0F500", "#0F83C6"))+
   geom_jitter(color="black", size=0.4, alpha=0.9, position = position_jitter(seed = 1)) +
   theme(
-    legend.position = "none",
-    plot.title = element_text(size=11)
+    plot.title = element_text(size=11),
+    legend.key.size = unit(0.5, "cm"),
+    legend.title = element_text( size=7), 
+    legend.text=element_text(size=7),
   ) +
   ggtitle("Volume by Specificity") +
   xlab("Specificity")+
-  ylab("Volume") 
+  ylab("Volume (cm^3)") 
+
+#volume by nitrogen#
+plant7 %>%
+  ggplot(aes(x=nitrogen, y=tukey_vol, fill=plant_species)) +
+  geom_boxplot(outlier.shape = NA) +
+  scale_fill_manual(values = c("#461763", "#C0F500", "#0F83C6"))+
+  geom_jitter(color="black", size=0.4, alpha=0.9, position = position_jitter(seed = 1)) +
+  theme(
+    plot.title = element_text(size=11),
+    legend.key.size = unit(0.5, "cm"),
+    legend.title = element_text( size=7), 
+    legend.text=element_text(size=7),
+  ) +
+  ggtitle("Plant Volume by Nitrogen Treatment") +
+  xlab("Treatment")+
+  ylab("Volume (cm^3)")
+
+#plant height by nitrogen#
+plant7 %>%
+  ggplot(aes(x=nitrogen, y=tukey_height, fill=plant_species)) +
+  geom_boxplot(outlier.shape = NA) +
+  scale_fill_manual(values = c("#461763", "#C0F500", "#0F83C6"))+
+  geom_jitter(color="black", size=0.4, alpha=0.9, position = position_jitter(seed = 1)) +
+  theme(
+    plot.title = element_text(size=11),
+    legend.key.size = unit(0.5, "cm"),
+    legend.title = element_text( size=7), 
+    legend.text=element_text(size=7),
+  ) +
+  ggtitle("Plant Height by Nitrogen Treatment") +
+  xlab("Treatment")+
+  ylab("Height")
 
 
 ##code! (correct survivability code)
