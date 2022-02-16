@@ -6,14 +6,24 @@ library(ggpubr)
 library(RColorBrewer)
 library(moments)
 
+library(tidyverse) # for data organization, manipulation, & visualization; includes ggplot2 and dplyr # 
+library(ggpubr) # for customizing plots made with ggplot2
+library(RColorBrewer) # color palettes for graphing
+library(rcompanion) # for normality tests and transformations
+library(nlme) # for mixed linear and generalized linear models
+library(lme4) # for mixed linear and generalized linear models
+library(devtools) # simplify r commands
+
 #set working directory
-setwd("C:/Users/Airsi/Dropbox (Smithsonian)/SERC_REU_2020/Experiment_Data_and_R_Code/R_CODE")) #Skye's desktop
+setwd("C:/Users/Airsi/Dropbox (Smithsonian)/SERC_REU_2020/Experiment_Data_and_R_Code/R_CODE") #Skye's desktop
 setwd("~/Dropbox (Smithsonian)/SERC_REU_2020/Experiment_Data_and_R_Code/R_CODE") #skye's mac
+setwd("C:/Users/hrusk/Dropbox (Smithsonian)/SERC_REU_2020/Experiment_Data_and_R_Code/Data/Data_For_Analysis")
 
 
 #make base csv an object
 nodv3 <- read.csv( "C:\\Users\\Airsi\\Dropbox (Smithsonian)\\SERC_REU_2020\\Experiment_Data_and_R_Code\\Data\\Data_For_Analysis\\nodule_combined_AMH.csv") #skye's desktop
 nodv3 <- read.csv("/Users/saus/Dropbox (Smithsonian)/SERC_REU_2020/Experiment_Data_and_R_Code/Data/Data_For_Analysis/nodule_combined_AMH.csv") #skye's mac
+nodv3 <- read.csv("nodule_combined_AMH_012221.csv")
 
 ##make the nodule column numeric##
 nodv3$nodules <- as.numeric(as.character(nodv3$nodules)) 

@@ -10,9 +10,12 @@ library(lmerTest)
 
 #set wd
 setwd("~/Dropbox (Smithsonian)/SERC_REU_2020/Experiment_Data_and_R_Code/R_CODE") #skye's mac
+setwd("C:/Users/hrusk/Dropbox (Smithsonian)/SERC_REU_2020/Experiment_Data_and_R_Code/Data/Data_For_Analysis")
 
 #read in csv
 plant1 <- read.csv("/Users/saus/Documents/r_stuff/SERC/csvs/plant_datasheet_06252021_SAUS.csv") #skye's mac
+plant1 <- read.csv("/Users/saus/Documents/r_stuff/SERC/csvs/plant_datasheet_06252021_SAUS.csv")
+plant1 <- read.csv("plant_datasheet_06252021_SAUS.csv")
 
 #species combination#
 plant2 <- plant1 %>% 
@@ -38,14 +41,17 @@ plant7 <- plant6 %>%
 #test for normal distribution#
 ggqqplot(plant7$height)
 plant7$tukey_height = transformTukey(plant7$height) #transform to fit normality
+plant7$log_height = log(plant7$height)
+ggqqplot(plant7$log_height)
+ggqqplot(plant7$tukey_height)
 
 ggqqplot(plant7$plant_volume)
 plant7$tukey_vol = transformTukey(plant7$plant_volume) #transform to fit normality
+plant7$sqrt_vol = (sqrt(plant7$plant_volume))
 
 #save lambda)#
 tukey_height_lambda <- transformTukey(plant7$height, returnLambda = TRUE)
 tukey_vol_lambda <- transformTukey(plant7$plant_volume, returnLambda = TRUE)
-
 
 #test for significance/normality#
 shapiro.test(plant7$tukey_height) #p==0.05789
