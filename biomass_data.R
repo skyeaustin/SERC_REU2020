@@ -16,6 +16,11 @@ library(rcompanion) # for normality tests and transformations
 library(nlme) # for mixed linear and generalized linear models
 library(lme4) # for mixed linear and generalized linear models
 library(devtools) # simplify r commands
+library(ggplot2)
+library(dplyr)
+library(moments)
+library(lmerTest)
+
 
 #set working directory
 setwd("C:/Users/Airsi/Dropbox (Smithsonian)/SERC_REU_2020/Experiment_Data_and_R_Code/R_CODE") #Skye's desktop

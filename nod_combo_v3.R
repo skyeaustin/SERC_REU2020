@@ -5,6 +5,11 @@ library(dplyr)
 library(ggpubr)
 library(RColorBrewer)
 library(moments)
+library(rcompanion) # for normality tests and transformations
+library(nlme) # for mixed linear and generalized linear models
+library(lme4) # for mixed linear and generalized linear models
+library(devtools) # simplify r commands
+library(lmerTest)
 
 library(tidyverse) # for data organization, manipulation, & visualization; includes ggplot2 and dplyr # 
 library(ggpubr) # for customizing plots made with ggplot2
@@ -40,6 +45,7 @@ nod3 <- nod2 %>%
 nod4 <- subset(nod3, nodules != "NA", select = yard:notes)
 
 test = lm(plant7$nodules~nitrogen + yard, data=plant7)
+
 
 nodmod1 <-  glm(nodules ~ mono_hetero*nitrogen + yard, family = poisson, data = nod4)
 confint(nodmod1)
@@ -84,8 +90,9 @@ print(nod2_N)
 
 ##number of nodules by treatment##
 nod4 %>%
-  ggplot(aes(x=nitrogen, y=nodules, fill=nodules)) +
+  ggplot(aes(x=nitrogen, y=nodules, fill=nitrogen)) +
   geom_boxplot(outlier.shape = NA) +
+  scale_fill_manual(values = c("#461763", "#149F86"))+
   geom_jitter(color="black", size=0.4, alpha=0.9, position = position_jitter(seed = 1)) + 
   theme(
     legend.position="none",
@@ -97,8 +104,9 @@ nod4 %>%
 
 ##number of nodules by combination##
 nod4 %>%
-  ggplot(aes(x=combination, y=nodules, fill=nodules)) +
+  ggplot(aes(x=combination, y=nodules, fill=combination)) +
   geom_boxplot(outlier.shape = NA) +
+  scale_fill_manual(values = c("#461763", "#C0F500", "#0F83C6", "#149F86"))+
   geom_jitter(color="black", size=0.4, alpha=0.9, position = position_jitter(seed = 1)) + 
   theme(
     legend.position="none",
@@ -109,9 +117,22 @@ nod4 %>%
   ylab("Number of Nodules")
 #CnEf combo looks interesting
 
+#nods by mon/het
+nod4 %>%
+  ggplot(aes(x=mono_hetero, y=nodules, fill=mono_hetero)) +
+  geom_boxplot(outlier.shape = NA) +
+  scale_fill_manual(values = c("#461763", "#C0F500"))+
+  geom_jitter(color="black", size=0.4, alpha=0.9, position = position_jitter(seed = 1)) + 
+  theme(
+    legend.position="none",
+    plot.title = element_text(size=11)
+  ) +
+  ggtitle("Number of Nodules by Specificity") +
+  xlab("Specificity")+
+  ylab("Number of Nodules")
 
 
-
+##density of nodules by treatment?
 
 
 lm_nod <- lm(nod5c$tukey_nod~nod5c$date)

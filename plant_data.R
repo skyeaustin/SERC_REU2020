@@ -35,7 +35,7 @@ plant6 <- plant5 %>%
   mutate(plant_volume = height*width_max*width_perp)
 #subset to last date#
 plant7 <- plant6 %>% 
-  subset(plant6$date == "8/5/2020")
+  subset(plant6$date == "8/5/2020")        ##REMOVE DEAD PLANTS##
 
 ##stat tests##
 #test for normal distribution#
@@ -72,7 +72,7 @@ lmer_vol_nmonhet <- lmer(data = plant7, tukey_vol~nitrogen*mono_hetero + (1|yard
 
 #height by combonation#
 plant7 %>%
-  ggplot(aes(x=combination, y=tukey_height, fill=combination)) +
+  ggplot(aes(x=combination, y=tukey_height, fill=plant_species)) +
     geom_boxplot(outlier.shape = NA) +
   scale_fill_manual(values = c("#461763", "#C0F500", "#0F83C6", "#149F86", "#596475", "#FBE118"))+
     geom_jitter(color="black", size=0.4, alpha=0.9, position = position_jitter(seed = 1)) +
@@ -86,7 +86,7 @@ plant7 %>%
 
 #volume by combonation# 
 plant7 %>%
-  ggplot(aes(x=combination, y=tukey_vol, fill=combination)) +
+  ggplot(aes(x=combination, y=tukey_vol, fill=plant_species)) +
   geom_boxplot(outlier.shape = NA) +
   scale_fill_manual(values = c("#461763", "#C0F500", "#0F83C6", "#149F86", "#596475", "#FBE118"))+
   geom_jitter(color="black", size=0.4, alpha=0.9, position = position_jitter(seed = 1)) +
@@ -190,6 +190,30 @@ plant7 %>%
   xlab("Treatment")+
   ylab("Height")
 
+#volume by combonation# 
+plant7 %>%
+  ggplot(aes(x=combination, y=tukey_vol, fill=nitrogen)) +
+  geom_boxplot(outlier.shape = NA) +
+  scale_fill_manual(values = c("#461763", "#C0F500", "#0F83C6", "#149F86", "#596475", "#FBE118"))+
+  geom_jitter(color="black", size=0.4, alpha=0.9, position = position_jitter(seed = 1)) +
+  theme(
+    plot.title = element_text(size=11)
+  ) +
+  ggtitle("Volume by Combonation") +
+  xlab("Combonation")+
+  ylab("Volume (cm^3)")
+
+plant7 %>%
+  ggplot(aes(x=combination, y=tukey_height, fill=nitrogen)) +
+  geom_boxplot(outlier.shape = NA) +
+  scale_fill_manual(values = c("#461763", "#C0F500", "#0F83C6", "#149F86", "#596475", "#FBE118"))+
+  geom_jitter(color="black", size=0.4, alpha=0.9, position = position_jitter(seed = 1)) +
+  theme(
+    plot.title = element_text(size=11)
+  ) +
+  ggtitle("Volume by Combonation") +
+  xlab("Combonation")+
+  ylab("Volume (cm^3)")
 
 ##code! (correct survivability code)
 #survivability by species

@@ -2,9 +2,18 @@
 ####### Data & R Exploration ############
 #########################################
 
+library(ggplot2)
 library(tidyverse)
-library(RColorBrewer)
+library(dplyr)
 library(ggpubr)
+library(RColorBrewer)
+library(moments)
+library(rcompanion) # for normality tests and transformations
+library(nlme) # for mixed linear and generalized linear models
+library(lme4) # for mixed linear and generalized linear models
+library(devtools) # simplify r commands
+library(lmerTest)
+
 
 setwd("~/Documents/Data") #working directory
 
