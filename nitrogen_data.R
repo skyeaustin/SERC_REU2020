@@ -16,10 +16,8 @@ library(rcompanion) # for normality tests and transformations
 library(nlme) # for mixed linear and generalized linear models
 library(lme4) # for mixed linear and generalized linear models
 library(devtools) # simplify r commands
-library(ggplot2)
-library(dplyr)
-library(moments)
-library(lmerTest)
+library(moments) # for distribution testing
+library(lmerTest) # for testing models 
 
 setwd("C:/Users/hrusk/Dropbox (Smithsonian)/SERC_REU_2020/Experiment_Data_and_R_Code/Data/Data_For_Analysis") #amy's laptop
 
@@ -27,9 +25,10 @@ labels <- read.csv("experimental_design.csv") #spreadsheet for pot specific info
 
 labels2 <- labels %>%
   mutate(pot = substring(pot_id, 1, 3)) %>% #creating "pot" as a column to merge with N datasets
-  mutate(yard = substring(pot_id, 12, 14)) #creating "yard" column
+  mutate(yard = substring(pot_id, 12, 14)) %>% #creating "yard" column
+  mutate(pot_plant = paste(pot, plant_num, sep = "_"))
 #######################################################################
-leaves <- read.csv("RRBplate14and18leaves.csv")
+leaves <- read.csv("leave_CNH_15March2020.csv")
 
 leaves$ID <- as.character(as.factor(leaves$ID)) #defining as character for mutations
 
@@ -45,10 +44,13 @@ leaves2 <- leaves2 %>%
   filter(ID != "cond") %>% #removing rows that were blanks and standards
   filter(ID != "STD4") %>% #removing rows that were blanks and standards
   select(c("ID", "C_Result", "H_Result", "N_Result", "Message")) %>% #selecting a subset of columns
+  mutate(material = paste("leaves")) %>%
   mutate(plant_num = substring(ID, 4)) %>% #creating plant_num column
-  mutate(pot = substring (ID, 1, 3)) #creating pot column for merging
+  mutate(pot = substring (ID, 1, 3)) %>% #creating pot column for merging
+  mutate(pot_plant = paste(pot, plant_num, sep = "_"))%>%
+  arrange(pot_plant)
 
-leaves3 <- merge(leaves2, labels2, by = "pot") #merging CHN data with experimental design dataframe
+leaves3 <- merge(leaves2, labels2, by = "pot_plant") #merging CHN data with experimental design dataframe
 
 #more defining columns....
 leaves3$plant_species <- as.character(as.factor(leaves3$plant_species))
@@ -71,10 +73,15 @@ roots2 <- roots2 %>%
   filter(ID != "cond") %>% #removing rows that were blanks and standards
   filter(ID != "STD4") %>% #removing rows that were blanks and standards
   select(c("ID", "C_Result", "H_Result", "N_Result", "Message")) %>% #selecting a subset of columns
+  mutate(material = paste("roots")) %>%
   mutate(plant_num = substring(ID, 4)) %>% #creating plant_num column
-  mutate(pot = substring (ID, 1, 3)) #creating pot column for merging
+  mutate(pot = substring (ID, 1, 3)) %>% 
+  mutate(pot_plant = paste(pot, plant_num, sep = "_"))%>% #creating pot column for merging
+  arrange(pot_plant)
 
-roots3 <- merge(roots2, labels2, by = "pot") #merging CHN data with experimental design dataframe
+roots3 <- merge(roots2, labels2, by = "pot_plant") #merging CHN data with experimental design dataframe
+
+
 
 #more defining columns....
 roots3$plant_species <- as.character(as.factor(roots3$plant_species))
@@ -83,6 +90,7 @@ roots3$mono_hetero <- as.character(as.factor(roots3$mono_hetero))
 
 #### data exploration ###
 
+#function of calculating means and standard errors
 barGraphStats <- function(data, variable, byFactorNames) {
   count <- length(byFactorNames)
   N <- aggregate(data[[variable]], data[byFactorNames], FUN=length)
@@ -100,7 +108,7 @@ barGraphStats <- function(data, variable, byFactorNames) {
   return(finalSummaryStats)
 }
 
-
+##### root graphs #####
 ggplot(data = barGraphStats(data = roots3, variable = "N_Result", byFactorNames = c("nitrogen", "plant_species")), aes(x=plant_species, y=mean, fill=nitrogen)) +
   geom_bar(stat='identity', position=position_dodge()) +
   geom_errorbar(aes(ymin=mean-se, ymax=mean+se), width = 0.2, position = position_dodge(0.9)) +
@@ -119,7 +127,35 @@ ggplot(data = barGraphStats(data = roots3, variable = "N_Result", byFactorNames 
   scale_fill_brewer(palette = "Set1") +
   ylab("Percent N") + xlab("Combination") +
   facet_wrap(~plant_species)
+
+#####removing outliers###
+ggplot(data = barGraphStats(data = roots4, variable = "N_Result", byFactorNames = c("nitrogen", "plant_species")), aes(x=plant_species, y=mean, fill=nitrogen)) +
+  geom_bar(stat='identity', position=position_dodge()) +
+  geom_errorbar(aes(ymin=mean-se, ymax=mean+se), width = 0.2, position = position_dodge(0.9)) +
+  scale_fill_brewer(palette = "Set1") +
+  ylab("Percent N") + xlab("Plant Species")
+
+ggplot(data = barGraphStats(data = roots4, variable = "N_Result", byFactorNames = c("nitrogen", "combination")), aes(x=combination, y=mean, fill=nitrogen)) +
+  geom_bar(stat='identity', position=position_dodge()) +
+  geom_errorbar(aes(ymin=mean-se, ymax=mean+se), width = 0.2, position = position_dodge(0.9)) +
+  scale_fill_brewer(palette = "Set1") +
+  ylab("Percent N") + xlab("combination")
+
+ggplot(data = barGraphStats(data = roots4, variable = "N_Result", byFactorNames = c("nitrogen", "mono_hetero", "plant_species")), aes(x=mono_hetero, y=mean, fill=nitrogen)) +
+  geom_bar(stat='identity', position=position_dodge()) +
+  geom_errorbar(aes(ymin=mean-se, ymax=mean+se), width = 0.2, position = position_dodge(0.9)) +
+  scale_fill_brewer(palette = "Set1") +
+  ylab("Percent N") + xlab("Combination") +
+  facet_wrap(~plant_species)
+
+###### leaves graphs ######
  
+ggplot(data = barGraphStats(data = leaves3, variable = "N_Result", byFactorNames = c("nitrogen", "plant_species")), aes(x=plant_species, y=mean, fill=nitrogen)) +
+  geom_bar(stat='identity', position=position_dodge()) +
+  geom_errorbar(aes(ymin=mean-se, ymax=mean+se), width = 0.2, position = position_dodge(0.9)) +
+  scale_fill_brewer(palette = "Set1") +
+  ylab("Percent N") + xlab("Plant Species")
+
 ggplot(data = barGraphStats(data = leaves3, variable = "N_Result", byFactorNames = c("nitrogen", "combination")), aes(x=combination, y=mean, fill=nitrogen)) +
   geom_bar(stat='identity', position=position_dodge()) +
   geom_errorbar(aes(ymin=mean-se, ymax=mean+se), width = 0.2, position = position_dodge(0.9)) +
@@ -138,3 +174,27 @@ ggplot(data = barGraphStats(data = leaves3, variable = "N_Result", byFactorNames
   geom_errorbar(aes(ymin=mean-se, ymax=mean+se), width = 0.2, position = position_dodge(0.9)) +
   scale_fill_brewer(palette = "Set1") +
   ylab("Percent N") + xlab("Plant Species")
+
+
+ggplot(roots3, aes(x=below_biomass_g, y=N_Result, fill = nitrogen)) + 
+  geom_point()+
+  geom_smooth()
+
+roots4 <- roots3 %>%
+  filter(N_Result < 10)
+
+ggplot(roots4, aes(x=below_biomass_g, y=N_Result, fill = nitrogen)) + 
+  geom_point()+
+  geom_smooth()
+
+ggplot(leaves3, aes(x=above_biomass_g, y=N_Result, fill = nitrogen)) + 
+  geom_point()+
+  geom_smooth()
+
+######### Data analysis #############
+## normality tests ## 
+ggqqplot(roots4$N_Result)
+ggqqplot(leaves3$N_Result)
+
+shapiro.test(roots4$N_Result)
+shapiro.test(leaves3$N_Result)
