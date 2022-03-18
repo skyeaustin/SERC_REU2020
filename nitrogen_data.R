@@ -10,7 +10,7 @@
 
 #load packages
 library(tidyverse) # for data organization, manipulation, & visualization; includes ggplot2 and dplyr # 
-library(ggpubr) # for customizing plots made with ggplot2
+library(ggpubr) # for customizing plots made with ggplot2, QQplots
 library(RColorBrewer) # color palettes for graphing
 library(rcompanion) # for normality tests and transformations
 library(nlme) # for mixed linear and generalized linear models
@@ -81,7 +81,8 @@ roots2 <- roots2 %>%
 
 roots3 <- merge(roots2, labels2, by = "pot_plant") #merging CHN data with experimental design dataframe
 
-
+roots4 <- roots3 %>%
+  filter(N_Result < 10)
 
 #more defining columns....
 roots3$plant_species <- as.character(as.factor(roots3$plant_species))
