@@ -15,7 +15,7 @@ setwd("C:/Users/hrusk/Dropbox (Smithsonian)/SERC_REU_2020/Experiment_Data_and_R_
 #read in csv
 plant1 <- read.csv("/Users/saus/Documents/r_stuff/SERC/csvs/plant_datasheet_06252021_SAUS.csv") #skye's mac
 plant1 <- read.csv("/Users/saus/Documents/r_stuff/SERC/csvs/plant_datasheet_06252021_SAUS.csv")
-plant1 <- read.csv("plant_datasheet_06252021_SAUS.csv")
+plant1 <- read.csv("plant_datasheet_06252021_SAUS.csv") #Amy laptop
 
 #species combination#
 plant2 <- plant1 %>% 
