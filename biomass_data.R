@@ -34,7 +34,8 @@ biom1 <- read.csv("C:\\Users\\Airsi\\Dropbox (Smithsonian)\\SERC_REU_2020\\Exper
 biom1 <- read.csv("/Users/saus/Dropbox (Smithsonian)/SERC_REU_2020/Experiment_Data_and_R_Code/Data/Data_For_Analysis/plant_biomass_all.csv") #skye's mac
 
 #Amy choose file#
-biom1 <- read.csv("plant_biomass_all.csv") ### amy's computers ###
+biom1 <- read.csv("plant_biomass_all.csv") ### amy's and Rachael's computers ###
+
 
 
 #################################
