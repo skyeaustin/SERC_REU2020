@@ -18,6 +18,7 @@ library(lme4) # for mixed linear and generalized linear models
 library(devtools) # simplify r commands
 library(moments) # for distribution testing
 library(lmerTest) # for testing models 
+library(effects) #plotting effects
 
 setwd("C:/Users/hrusk/Dropbox (Smithsonian)/SERC_REU_2020/Experiment_Data_and_R_Code/Data/Data_For_Analysis") #amy's laptop
 
@@ -234,14 +235,29 @@ ggqqplot(leaves3$N_Result)
 shapiro.test(roots3$N_Result)
 shapiro.test(leaves3$N_Result)
 
-roots3$N_result_tukey = transformTukey(roots3$N_Result)
-leaves3$N_Result_tukey= transformTukey(leaves3$N_Result)
+# transformations #
+leaves3$N_Resultlog <- log(leaves3$N_Result)
+ggqqplot(leaves3$N_Resultlog)
+shapiro.test(leaves3$N_Resultlog)
+
+roots3$N_Resultlog <- log(roots3$N_Result)
+ggqqplot(roots3$N_Resultlog)
+shapiro.test(roots3$N_Resultlog)
 
 
 
-# store transformTukey lambda values #
-tukey_root_lambda <- transformTukey(roots3$N_result_tukey, returnLambda = TRUE)
-tukey_leave_lambda <- transformTukey(leaves3$N_Result_tukey, returnLambda = TRUE)
+######## transformed total biomass with yard as random effect #########
+modelnitrogenleaves <- lmer(N_Resultlog ~ nitrogen*plant_species*mono_hetero + (1|yard), data = leaves3)
+summary(modelnitrogenleaves)
+anova(modelnitrogenleaves)
+plot(allEffects(modelnitrogenleaves))
 
+modelcombinationleaves <- lmer(N_Resultlog ~ nitrogen*combination + (1|yard), data = leaves3)
+summary(modelcombinationleaves)
+anova(modelcombinationleaves)
+plot(allEffects(modelcombinationleaves))
 
-
+modelnitrogenroots <- glmer(N_Result ~ nitrogen*plant_species*mono_hetero + (1|yard), data = roots3, family = poisson(link="log"))
+summary(modelnitrogenroots)
+anova(modelnitrogenroots)
+plot(allEffects(modelnitrogenroots))
