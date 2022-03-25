@@ -234,4 +234,14 @@ ggqqplot(leaves3$N_Result)
 shapiro.test(roots3$N_Result)
 shapiro.test(leaves3$N_Result)
 
+roots3$N_result_tukey = transformTukey(roots3$N_Result)
+leaves3$N_Result_tukey= transformTukey(leaves3$N_Result)
+
+
+
+# store transformTukey lambda values #
+tukey_root_lambda <- transformTukey(roots3$N_result_tukey, returnLambda = TRUE)
+tukey_leave_lambda <- transformTukey(leaves3$N_Result_tukey returnLambda = TRUE)
+
+
 
