@@ -241,7 +241,7 @@ leaves3$N_Result_tukey= transformTukey(leaves3$N_Result)
 
 # store transformTukey lambda values #
 tukey_root_lambda <- transformTukey(roots3$N_result_tukey, returnLambda = TRUE)
-tukey_leave_lambda <- transformTukey(leaves3$N_Result_tukey returnLambda = TRUE)
+tukey_leave_lambda <- transformTukey(leaves3$N_Result_tukey, returnLambda = TRUE)
 
 
 
