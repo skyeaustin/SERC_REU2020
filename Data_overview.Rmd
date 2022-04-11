@@ -1,0 +1,572 @@
+---
+title: "Overview_of_Data"
+author: "AMH"
+date: "4/11/2022"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_knit$set(root.dir = "C:/Users/hrusk/Dropbox (Smithsonian)/SERC_REU_2020/Experiment_Data_and_R_Code/Data/Data_For_Analysis")
+setwd("C:/Users/hrusk/Dropbox (Smithsonian)/SERC_REU_2020/Experiment_Data_and_R_Code/Data/Data_For_Analysis")
+getwd()
+```
+
+
+Rachael's Working Directory
+```{r}
+
+```
+
+
+```{r}
+#load packages
+library(tidyverse) # for data organization, manipulation, & visualization; includes ggplot2 and dplyr # 
+library(ggpubr) # for customizing plots made with ggplot2, QQplots
+library(RColorBrewer) # color palettes for graphing
+library(rcompanion) # for normality tests and transformations
+library(nlme) # for mixed linear and generalized linear models
+library(lme4) # for mixed linear and generalized linear models
+library(devtools) # simplify r commands
+library(moments) # for distribution testing
+library(lmerTest) # for testing models 
+library(effects) #plotting effects
+
+```
+
+Datasets
+```{r}
+
+biom1 <- read.csv("plant_biomass_all.csv")
+labels <- read.csv("experimental_design.csv") #spreadsheet for pot specific information
+leaves <- read.csv("leave_CNH_22March2020.csv")
+roots <- read.csv("root_CHN_22March2022.csv")
+nodv3 <- read.csv("nodule_combined_AMH_012221.csv")
+plant1 <- read.csv("plant_datasheet_06252021_SAUS.csv")
+
+```
+
+Data wrangling - plant
+```{r}
+#species combination#
+plant2 <- plant1 %>% 
+  mutate(combination = substring(pot_id, 7, 10)) %>% 
+  mutate(mono_hetero = if_else(plant2$combination %in% c("EpEV", "CnEv", "CnEp"), "hetero", "mono")) %>% 
+  mutate(nitrogen = substring(pot_id, 5,5))
+
+#remove weird columns#
+plant5 <- select(plant2, -starts_with("X"))
+
+#make height column numeric#
+plant5$height <- as.numeric(as.character(plant5$height)) 
+
+#volume column#
+plant6 <- plant5 %>% 
+  mutate(plant_volume = height*width_max*width_perp) 
+ 
+plant7 <- plant6 %>%
+  subset(plant6$date == "8/5/2020")%>%
+  na.omit(plant6)
+
+plant7$tukey_height = transformTukey(plant7$height)
+plant7$tukey_vol = transformTukey(plant7$plant_volume)
+
+```
+
+Data wrangling - Nitrogen
+```{r}
+labels2 <- labels %>%
+  mutate(pot = substring(pot_id, 1, 3))%>%  #creating "pot" as a column to merge with N datasets
+  mutate(yard = substring(pot_id, 12, 14)) %>% #creating "yard" column
+  mutate(pot_plant = paste(pot, plant_num, sep = "_"))
+
+leaves$ID <- as.character(as.factor(leaves$ID)) #defining as character for mutations
+
+leaves2 <- leaves %>% 
+  mutate(across(where(is.character), str_remove_all, pattern = fixed(" "))) #removing excess spaces
+
+leaves2$ID <- as.character(as.factor(leaves2$ID))#redefining column as character, because reasons
+
+leaves2$ID <- str_pad(leaves2$ID, 4, side = "left", pad = "0") #making all IDs the same length
+
+leaves2 <- leaves2 %>%
+  filter(ID != "blank") %>% #removing rows that were blanks and standards
+  filter(ID != "cond") %>% #removing rows that were blanks and standards
+  filter(ID != "STD4") %>% #removing rows that were blanks and standards
+  filter(ID != "SDT4") %>%
+  select(c("ID", "C_Result", "H_Result", "N_Result", "Message")) %>% #selecting a subset of columns
+  mutate(material = paste("leaves")) %>%
+  mutate(plant_num = substring(ID, 4)) %>% #creating plant_num column
+  mutate(pot = substring (ID, 1, 3)) %>% #creating pot column for merging
+  mutate(pot_plant = paste(pot, plant_num, sep = "_"))%>%
+  arrange(pot_plant)
+
+leaves3 <- merge(leaves2, labels2, by = "pot_plant")
+
+
+
+roots$ID <- as.character(as.factor(roots$ID)) #defining as character for mutations
+
+roots2 <- roots %>% 
+  mutate(across(where(is.character), str_remove_all, pattern = fixed(" "))) #removing excess spaces
+
+roots2$ID <- as.character(as.factor(roots2$ID))#redefining column as character, because reasons
+
+roots2$ID <- str_pad(roots2$ID, 4, side = "left", pad = "0") #making all IDs the same length
+
+roots2 <- roots2 %>%
+  filter(ID != "blank") %>% #removing rows that were blanks and standards
+  filter(ID != "cond") %>% #removing rows that were blanks and standards
+  filter(ID != "STD4") %>% #removing rows that were blanks and standards
+  filter(!(ID == "0222" & Message != "RRBreruns")) %>% #removing duplicates
+  filter(!(ID == "0721" & Message != "RRBreruns"))%>% #removing duplicates
+  filter(!(ID == "0421" & Message != "RRBreruns")) %>% #removing duplicates
+  filter(!(ID == "0781" & Message != "RRBreruns")) %>% #removing duplicates
+  filter(!(ID == "1152" & Message != "RRBreruns")) %>% #removing duplicates
+  filter(!(ID == "1111" & Message != "RRBreruns")) %>% #removing duplicates
+  filter(!(ID == "1112" & Message != "RRBreruns")) %>% #removing duplicates
+  filter(!(ID == "1122" & Message != "RRBreruns")) %>% #removing duplicates
+  filter(!(ID == "1142" & Message != "RRBreruns")) %>% #removing duplicates
+  filter(!(ID == "0941" & Message != "RRBreruns")) %>% #removing duplicates
+  filter(!(ID == "0942" & Message != "RRBreruns")) %>% #removing duplicatez
+  filter(!(ID == "0012" & Message != "RRBreruns")) %>% #removing duplicates
+  filter(!(ID == "0051" & Message != "RRBreruns")) %>% #removing duplicates
+  filter(!(ID == "0272" & Message != "RRBreruns")) %>% #removing duplicates
+  select(c("ID", "C_Result", "H_Result", "N_Result", "Message")) %>% #selecting a subset of columns
+  mutate(material = paste("roots")) %>%
+  mutate(plant_num = substring(ID, 4)) %>% #creating plant_num column
+  mutate(pot = substring (ID, 1, 3)) %>% 
+  mutate(pot_plant = paste(pot, plant_num, sep = "_"))%>% #creating pot column for merging
+  arrange(pot_plant)
+
+roots3 <- merge(roots2, labels2, by = "pot_plant") 
+
+#more defining columns....
+roots3$plant_species <- as.character(as.factor(roots3$plant_species))
+roots3$nitrogen <- as.character(as.factor(roots3$nitrogen))
+roots3$mono_hetero <- as.character(as.factor(roots3$mono_hetero))
+
+leaves3$plant_species <- as.character(as.factor(leaves3$plant_species))
+leaves3$nitrogen <- as.character(as.factor(leaves3$nitrogen))
+leaves3$mono_hetero <- as.character(as.factor(leaves3$mono_hetero))
+
+total <- rbind(roots3, leaves3)
+```
+
+
+Data wrangling - Biomass
+```{r}
+## remove weird columns ##
+biom2 <- select(biom1, -starts_with("X")) %>% 
+  mutate(combination = substring(pot_id, 7, 10)) 
+
+biom5 <- biom2 %>%
+  mutate(mono_hetero = if_else(biom2$combination %in% c("EpEV", "CnEv", "CnEp"), "hetero", "mono")) %>%
+  mutate(nitrogen = substring(pot_id, 5,5))%>% 
+  mutate(total_biomass = above_biomass_g+below_biomass_g)
+
+## ask if something is numeric, character, factor, integer ## 
+is.numeric(biom5$above_biomass_g)
+
+## define columns as numeric ##
+biom5$above_biomass_g <- as.numeric(as.character(biom5$above_biomass_g))
+biom5$below_biomass_g <- as.numeric(as.character(biom5$below_biomass_g))
+biom5$total_biomass <- as.numeric(as.character(biom5$total_biomass))
+
+## remove dead plants ##
+biom6 <- na.omit(biom5)
+
+## create yard column ##
+biom6$yard = substring(biom6$pot_id, 12,14)
+
+```
+
+Data wrangling - nodules
+```{r}
+nodv3$nodules <- as.numeric(as.character(nodv3$nodules)) 
+
+##species combination##
+nod3 <- nodv3 %>% 
+  mutate(combination = substring(pot_id, 7, 10)) %>% 
+  mutate(mono_hetero = if_else(nodv3$combination %in% c("EpEV", "CnEv", "CnEp"), "hetero", "mono")) %>% 
+  mutate(nitrogen = substring(pot_id, 5,5))
+
+##remove dead plants##
+nod4 <- subset(nod3, nodules != "NA", select = yard:notes)
+
+plant7$tukey_height = transformTukey(plant7$height)
+
+```
+
+Height by species
+```{r}
+plant7 %>%
+  ggplot(aes(x=plant_species, y=tukey_height, fill=plant_species)) +
+  geom_boxplot(outlier.shape = NA) +
+  scale_fill_manual(values = c("#461763", "#C0F500", "#0F83C6"))+
+  geom_jitter(color="black", size=0.4, alpha=0.9, position = position_jitter(seed = 1)) +
+  theme(
+    legend.position = "none",
+    plot.title = element_text(size=11)
+  ) +
+  ggtitle("Plant Height by Species") +
+  xlab("Species")+
+  ylab("Height (cm)")
+```
+
+Height by combination and species
+```{r}
+plant7 %>%
+  ggplot(aes(x=combination, y=tukey_height, fill=plant_species)) +
+    geom_boxplot(outlier.shape = NA) +
+  scale_fill_manual(values = c("#461763", "#C0F500", "#0F83C6", "#149F86", "#596475", "#FBE118"))+
+    geom_jitter(color="black", size=0.4, alpha=0.9, position = position_jitter(seed = 1)) +
+  theme(
+    legend.position = "none",
+    plot.title = element_text(size=11)
+  ) +
+  ggtitle("Height by Combonation") +
+  xlab("Combonation")+
+  ylab("Height (cm)") 
+
+```
+height by mono_hetero and plant species
+```{r}
+plant7 %>%
+  ggplot(aes(x=mono_hetero, y=tukey_height, fill=plant_species)) +
+  geom_boxplot(outlier.shape = NA) +
+  scale_fill_manual(values = c("#461763", "#C0F500", "#0F83C6"))+
+  geom_jitter(color="black", size=0.4, alpha=0.9, position = position_jitter(seed = 1)) +
+  theme(
+    plot.title = element_text(size=11),
+    legend.key.size = unit(0.5, "cm"),
+    legend.title = element_text( size=7), 
+    legend.text=element_text(size=7),
+  ) +
+  ggtitle("Height by Specificity") +
+  xlab("Specificity")+
+  ylab("Height (cm)") 
+```
+Height by nitrogen and plant species
+```{r}
+plant7 %>%
+  ggplot(aes(x=nitrogen, y=tukey_height, fill=plant_species)) +
+  geom_boxplot(outlier.shape = NA) +
+  scale_fill_manual(values = c("#461763", "#C0F500", "#0F83C6"))+
+  geom_jitter(color="black", size=0.4, alpha=0.9, position = position_jitter(seed = 1)) +
+  theme(
+    plot.title = element_text(size=11),
+    legend.key.size = unit(0.5, "cm"),
+    legend.title = element_text( size=7), 
+    legend.text=element_text(size=7),
+  ) +
+  ggtitle("Plant Height by Nitrogen Treatment") +
+  xlab("Treatment")+
+  ylab("Height")
+```
+Height by nitrogen and combination
+```{r}
+plant7 %>%
+  ggplot(aes(x=combination, y=tukey_height, fill=nitrogen)) +
+  geom_boxplot(outlier.shape = NA) +
+  scale_fill_manual(values = c("#461763", "#C0F500", "#0F83C6", "#149F86", "#596475", "#FBE118"))+
+  geom_jitter(color="black", size=0.4, alpha=0.9, position = position_jitter(seed = 1)) +
+  theme(
+    plot.title = element_text(size=11)
+  ) +
+  ggtitle("Volume by Combonation") +
+  xlab("Combonation")+
+  ylab("Volume (cm^3)")
+
+```
+
+
+
+Volume by Combination and Species
+```{r}
+plant7 %>%
+  ggplot(aes(x=combination, y=tukey_vol, fill=plant_species)) +
+  geom_boxplot(outlier.shape = NA) +
+  scale_fill_manual(values = c("#461763", "#C0F500", "#0F83C6", "#149F86", "#596475", "#FBE118"))+
+  geom_jitter(color="black", size=0.4, alpha=0.9, position = position_jitter(seed = 1)) +
+  theme(
+    legend.position = "none",
+    plot.title = element_text(size=11)
+  ) +
+  ggtitle("Volume by Combonation") +
+  xlab("Combonation")+
+  ylab("Volume (cm^3)")
+
+```
+
+Volume by Species
+```{r}
+plant7 %>%
+  ggplot(aes(x=plant_species, y=tukey_vol, fill=plant_species)) +
+  geom_boxplot(outlier.shape = NA) +
+  scale_fill_manual(values = c("#461763", "#C0F500", "#0F83C6"))+
+  geom_jitter(color="black", size=0.4, alpha=0.9, position = position_jitter(seed = 1)) +
+  theme(
+    legend.position = "none",
+    plot.title = element_text(size=11)
+  ) +
+  ggtitle("Plant Volume by Species") +
+  xlab("Species")+
+  ylab("Volume (cm^3)")
+
+```
+volume by mono_hetero vs. plant species
+```{r}
+plant7 %>%
+  ggplot(aes(x=mono_hetero, y=tukey_vol, fill=plant_species)) +
+  geom_boxplot(outlier.shape = NA) +
+  scale_fill_manual(values = c("#461763", "#C0F500", "#0F83C6"))+
+  geom_jitter(color="black", size=0.4, alpha=0.9, position = position_jitter(seed = 1)) +
+  theme(
+    plot.title = element_text(size=11),
+    legend.key.size = unit(0.5, "cm"),
+    legend.title = element_text( size=7), 
+    legend.text=element_text(size=7),
+  ) +
+  ggtitle("Volume by Specificity") +
+  xlab("Specificity")+
+  ylab("Volume (cm^3)") 
+
+```
+
+Volume by nitrogen and plant species
+```{r}
+plant7 %>%
+  ggplot(aes(x=nitrogen, y=tukey_vol, fill=plant_species)) +
+  geom_boxplot(outlier.shape = NA) +
+  scale_fill_manual(values = c("#461763", "#C0F500", "#0F83C6"))+
+  geom_jitter(color="black", size=0.4, alpha=0.9, position = position_jitter(seed = 1)) +
+  theme(
+    plot.title = element_text(size=11),
+    legend.key.size = unit(0.5, "cm"),
+    legend.title = element_text( size=7), 
+    legend.text=element_text(size=7),
+  ) +
+  ggtitle("Plant Volume by Nitrogen Treatment") +
+  xlab("Treatment")+
+  ylab("Volume (cm^3)")
+```
+
+Volume vs. nitrogen and combination
+```{r}
+plant7 %>%
+  ggplot(aes(x=combination, y=tukey_vol, fill=nitrogen)) +
+  geom_boxplot(outlier.shape = NA) +
+  scale_fill_manual(values = c("#461763", "#C0F500", "#0F83C6", "#149F86", "#596475", "#FBE118"))+
+  geom_jitter(color="black", size=0.4, alpha=0.9, position = position_jitter(seed = 1)) +
+  theme(
+    plot.title = element_text(size=11)
+  ) +
+  ggtitle("Volume by Combonation") +
+  xlab("Combonation")+
+  ylab("Volume (cm^3)")
+
+
+```
+
+Aboveground biomass by species
+```{r}
+biom6 %>%
+  ggplot(aes(x=plant_species, y=above_biomass_g, fill=plant_species)) +
+  geom_boxplot(outlier.shape = NA) +
+  geom_jitter(color="black", size=0.4, alpha=0.9, position = position_jitter(seed = 1)) +
+  theme(
+    legend.position="none",
+    plot.title = element_text(size=11)
+  ) +
+  ggtitle("Aboveground Biomass by Species") +
+  xlab("Species")+
+  ylab("Biomass (g)")
+
+```
+Belowground biomass vs. plant species
+```{r}
+biom6 %>%
+  ggplot(aes(x=plant_species, y=below_biomass_g, fill=plant_species)) +
+  geom_boxplot(outlier.shape = NA) +
+  geom_jitter(color="black", size=0.4, alpha=0.9, position = position_jitter(seed = 1)) +
+  theme(
+    legend.position="none",
+    plot.title = element_text(size=11)
+  ) +
+  ggtitle("Belowground Biomass by Species") +
+  xlab("Species")+
+  ylab("Biomass (g)")
+```
+total biomass by species
+```{r}
+biom6 %>%
+  ggplot(aes(x=plant_species, y=total_biomass, fill=plant_species)) +
+  geom_boxplot(outlier.shape = NA) +
+  geom_jitter(color="black", size=0.4, alpha=0.9, position = position_jitter(seed = 1)) +
+  theme(
+    legend.position = "none",
+    plot.title = element_text(size=11)
+  ) +
+  ggtitle("Total Biomass by Species") +
+  xlab("Species")+
+  ylab("Biomass (g)")
+```
+abovegound by plant species and nitrogen
+```{r}
+biom6 %>%
+  ggplot(aes(x=plant_species, y=above_biomass_g, fill=nitrogen)) +
+  geom_boxplot(outlier.shape = NA) +
+  geom_jitter(color="black", size=0.4, alpha=0.9, position = position_jitter(seed = 1)) +
+  theme(
+    plot.title = element_text(size=11)
+  ) +
+  ggtitle("Aboveground Biomass by Species") +
+  xlab("Species")+
+  ylab("Biomass (g)")
+```
+below biomass by plant species and nitrogen
+```{r}
+biom6 %>%
+  ggplot(aes(x=plant_species, y=below_biomass_g, fill=nitrogen)) +
+  geom_boxplot(outlier.shape = NA) +
+  geom_jitter(color="black", size=0.4, alpha=0.9, position = position_jitter(seed = 1)) +
+  theme(
+    plot.title = element_text(size=11)
+  ) +
+  ggtitle("Belowground Biomass by Species") +
+  xlab("Species")+
+  ylab("Biomass (g)")
+```
+total biomass vs nitrogen and plant species
+```{r}
+biom6 %>%
+  ggplot(aes(x=plant_species, y=total_biomass, fill=nitrogen)) +
+  geom_boxplot(outlier.shape = NA) +
+  geom_jitter(color="black", size=0.4, alpha=0.9, position = position_jitter(seed = 1)) +
+  theme(
+    plot.title = element_text(size=11)
+  ) +
+  ggtitle("Total Biomass by Species") +
+  xlab("Species")+
+  ylab("Biomass (g)")
+```
+aboveground vs. combination
+```{r}
+biom6 %>%
+  ggplot(aes(x=combination, y=above_biomass_g, fill=combination)) +
+  geom_boxplot(outlier.shape = NA) +
+  geom_jitter(color="black", size=0.4, alpha=0.9, position = position_jitter(seed = 1)) +
+  theme(
+    plot.title = element_text(size=11)
+  ) +
+  ggtitle("Total Biomass by Combination") +
+  xlab("Combination")+
+  ylab("Biomass (g)")
+```
+belowground biomass vs. combination
+```{r}
+biom6 %>%
+  ggplot(aes(x=combination, y=below_biomass_g, fill=combination)) +
+  geom_boxplot(outlier.shape = NA) +
+  geom_jitter(color="black", size=0.4, alpha=0.9, position = position_jitter(seed = 1)) +
+  theme(
+    plot.title = element_text(size=11)
+  ) +
+  ggtitle("Total Biomass by Combination") +
+  xlab("Combination")+
+  ylab("Biomass (g)")
+
+```
+
+```{r}
+biom6 %>%
+  ggplot(aes(x=combination, y=total_biomass, fill=combination)) +
+  geom_boxplot(outlier.shape = NA) +
+  geom_jitter(color="black", size=0.4, alpha=0.9, position = position_jitter(seed = 1)) +
+  theme(
+    plot.title = element_text(size=11)
+  ) +
+  ggtitle("Total Biomass by Combination") +
+  xlab("Combination")+
+  ylab("Biomass (g)")
+
+```
+aboveground biomass vs combination and nitrogen
+```{r}
+biom6 %>%
+  ggplot(aes(x=combination, y=above_biomass_g, fill=nitrogen)) +
+  geom_boxplot(outlier.shape = NA) +
+  geom_jitter(color="black", size=0.4, alpha=0.9, position = position_jitter(seed = 1)) +
+  theme(
+    plot.title = element_text(size=11)
+  ) +
+  ggtitle("Total Biomass by Combination") +
+  xlab("Combination")+
+  ylab("Biomass (g)")
+```
+belowground biomass combination and nitrogen
+```{r}
+biom6 %>%
+  ggplot(aes(x=combination, y=below_biomass_g, fill=nitrogen)) +
+  geom_boxplot(outlier.shape = NA) +
+  geom_jitter(color="black", size=0.4, alpha=0.9, position = position_jitter(seed = 1)) +
+  theme(
+    plot.title = element_text(size=11)
+  ) +
+  ggtitle("Total Biomass by Combination") +
+  xlab("Combination")+
+  ylab("Biomass (g)")
+
+```
+total biomass vs combination and nitrogen
+```{r}
+biom6 %>%
+  ggplot(aes(x=combination, y=total_biomass, fill=nitrogen)) +
+  geom_boxplot(outlier.shape = NA) +
+  geom_jitter(color="black", size=0.4, alpha=0.9, position = position_jitter(seed = 1)) +
+  theme(
+    plot.title = element_text(size=11)
+  ) +
+  ggtitle("Total Biomass by Combination") +
+  xlab("Combination")+
+  ylab("Biomass (g)")
+```
+leaf nitrogen vs. nitrogen and plant species
+```{r}
+ggplot(data = barGraphStats(data = leaves3, variable = "N_Result", byFactorNames = c("nitrogen", "plant_species")), aes(x=plant_species, y=mean, fill=nitrogen)) +
+  geom_bar(stat='identity', position=position_dodge()) +
+  geom_errorbar(aes(ymin=mean-se, ymax=mean+se), width = 0.2, position = position_dodge(0.9)) +
+  scale_fill_brewer(palette = "Set1") +
+  ylab("Percent N") + xlab("Plant Species")
+
+```
+leaf nitrogen vs. nitrogen and combination
+```{r}
+ggplot(data = barGraphStats(data = leaves3, variable = "N_Result", byFactorNames = c("nitrogen", "combination")), aes(x=combination, y=mean, fill=nitrogen)) +
+  geom_bar(stat='identity', position=position_dodge()) +
+  geom_errorbar(aes(ymin=mean-se, ymax=mean+se), width = 0.2, position = position_dodge(0.9)) +
+  scale_fill_brewer(palette = "Set1") +
+  ylab("Percent N") + xlab("combination")
+
+```
+leaf nitrogen vs nitrogen, mono_hetero, and plant species
+```{r}
+ggplot(data = barGraphStats(data = leaves3, variable = "N_Result", byFactorNames = c("nitrogen", "mono_hetero", "plant_species")), aes(x=mono_hetero, y=mean, fill=nitrogen)) +
+  geom_bar(stat='identity', position=position_dodge()) +
+  geom_errorbar(aes(ymin=mean-se, ymax=mean+se), width = 0.2, position = position_dodge(0.9)) +
+  scale_fill_brewer(palette = "Set1") +
+  ylab("Percent N") + xlab("Combination") +
+  facet_wrap(~plant_species)
+```
+leaf nitrogen vs. nitrogen and plant species
+```{r}
+ggplot(data = barGraphStats(data = leaves3, variable = "N_Result", byFactorNames = c("nitrogen", "plant_species")), aes(x=plant_species, y=mean, fill=nitrogen)) +
+  geom_bar(stat='identity', position=position_dodge()) +
+  geom_errorbar(aes(ymin=mean-se, ymax=mean+se), width = 0.2, position = position_dodge(0.9)) +
+  scale_fill_brewer(palette = "Set1") +
+  ylab("Percent N") + xlab("Plant Species")
+
+```
+
+
