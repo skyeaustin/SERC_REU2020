@@ -74,8 +74,10 @@ plant height and volume
 ```{r}
 #species combination#
 plant2 <- plant1 %>% 
-  mutate(combination = substring(pot_id, 7, 10)) %>% 
-  mutate(mono_hetero = if_else(plant1$combination %in% c("EpEV", "CnEv", "CnEp"), "hetero", "mono")) %>% 
+  mutate(combination = substring(pot_id, 7, 10)) 
+
+plant2 <- plant2 %>%  
+  mutate(mono_hetero = if_else(plant2$combination %in% c("EpEV", "CnEv", "CnEp"), "hetero", "mono")) %>% 
   mutate(nitrogen = substring(pot_id, 5,5))
 
 #remove weird columns#
@@ -322,7 +324,10 @@ plant7 %>%
 ```
 Height model
 ```{r}
-
+model_height <- lmer(tukey_height ~ nitrogen*mono_hetero*plant_species + (1|yard), data = plant7)
+summary(model_height)
+anova(model_height)
+#plot(allEffects(model_height))
 
 ```
 
@@ -417,6 +422,14 @@ plant7 %>%
 
 ```
 
+model: volume by species, nitrogen, and mono_hetero
+```{r}
+model_volume <- lmer(tukey_vol ~ nitrogen*mono_hetero*plant_species + (1|yard), data = plant7)
+summary(model_volume)
+anova(model_volume)
+```
+
+
 *Total Biomass figures and model(s)*
 
 total biomass by species
@@ -495,6 +508,7 @@ summary(model3)
 anova(model3)
 
 ```
+
 
 
 *Aboveground Biomass figures and model(s)*
@@ -673,6 +687,17 @@ ggplot(data = barGraphStats(data = leaves3, variable = "N_Result", byFactorNames
   ylab("Percent N") + xlab("Combination") +
   facet_wrap(~plant_species)
 ```
+leaf nitrogen Vs. nitrogen, species, combination
+```{r}
+ggplot(data = barGraphStats(data = leaves3, variable = "N_Result", byFactorNames = c("nitrogen", "combination", "plant_species")), aes(x=combination, y=mean, fill=nitrogen)) +
+  geom_bar(stat='identity', position=position_dodge()) +
+  geom_errorbar(aes(ymin=mean-se, ymax=mean+se), width = 0.2, position = position_dodge(0.9)) +
+  scale_fill_brewer(palette = "Set1") +
+  ylab("Percent N") + xlab("Combination") +
+  facet_wrap(~plant_species)
+```
+
+
 
 leaf nitrogen vs. nitrogen and plant species
 ```{r}
