@@ -34,7 +34,29 @@ library(effects) #plotting effects
 
 ```
 
-Datasets
+Bar graph stats - function for calculating means and standard errors
+```{r}
+barGraphStats <- function(data, variable, byFactorNames) {
+  count <- length(byFactorNames)
+  N <- aggregate(data[[variable]], data[byFactorNames], FUN=length)
+  names(N)[1:count] <- byFactorNames
+  names(N) <- sub("^x$", "N", names(N))
+  mean <- aggregate(data[[variable]], data[byFactorNames], FUN=mean)
+  names(mean)[1:count] <- byFactorNames
+  names(mean) <- sub("^x$", "mean", names(mean))
+  sd <- aggregate(data[[variable]], data[byFactorNames], FUN=sd)
+  names(sd)[1:count] <- byFactorNames
+  names(sd) <- sub("^x$", "sd", names(sd))
+  preSummaryStats <- merge(N, mean, by=byFactorNames)
+  finalSummaryStats <- merge(preSummaryStats, sd, by=byFactorNames)
+  finalSummaryStats$se <- finalSummaryStats$sd / sqrt(finalSummaryStats$N)
+  return(finalSummaryStats)
+}
+```
+
+
+
+Importing Datasets
 ```{r}
 
 biom1 <- read.csv("plant_biomass_all.csv")
@@ -46,12 +68,14 @@ plant1 <- read.csv("plant_datasheet_06252021_SAUS.csv")
 
 ```
 
-Data wrangling - plant
+*Data wrangling*
+
+plant height and volume
 ```{r}
 #species combination#
 plant2 <- plant1 %>% 
   mutate(combination = substring(pot_id, 7, 10)) %>% 
-  mutate(mono_hetero = if_else(plant2$combination %in% c("EpEV", "CnEv", "CnEp"), "hetero", "mono")) %>% 
+  mutate(mono_hetero = if_else(plant1$combination %in% c("EpEV", "CnEv", "CnEp"), "hetero", "mono")) %>% 
   mutate(nitrogen = substring(pot_id, 5,5))
 
 #remove weird columns#
@@ -68,12 +92,13 @@ plant7 <- plant6 %>%
   subset(plant6$date == "8/5/2020")%>%
   na.omit(plant6)
 
+#tukey tranform for normal distribtuion
 plant7$tukey_height = transformTukey(plant7$height)
 plant7$tukey_vol = transformTukey(plant7$plant_volume)
 
 ```
 
-Data wrangling - Nitrogen
+Nitrogen in leaves and roots
 ```{r}
 labels2 <- labels %>%
   mutate(pot = substring(pot_id, 1, 3))%>%  #creating "pot" as a column to merge with N datasets
@@ -151,10 +176,19 @@ leaves3$nitrogen <- as.character(as.factor(leaves3$nitrogen))
 leaves3$mono_hetero <- as.character(as.factor(leaves3$mono_hetero))
 
 total <- rbind(roots3, leaves3)
+
+#log transform N data#
+leaves3$N_Resultlog <- log(leaves3$N_Result)
+ggqqplot(leaves3$N_Resultlog)
+shapiro.test(leaves3$N_Resultlog)
+
+roots3$N_Resultlog <- log(roots3$N_Result)
+ggqqplot(roots3$N_Resultlog)
+shapiro.test(roots3$N_Resultlog)
 ```
 
 
-Data wrangling - Biomass
+Biomass
 ```{r}
 ## remove weird columns ##
 biom2 <- select(biom1, -starts_with("X")) %>% 
@@ -179,6 +213,11 @@ biom6 <- na.omit(biom5)
 ## create yard column ##
 biom6$yard = substring(biom6$pot_id, 12,14)
 
+#transform, since non-normal
+biom6$tukey_ab = transformTukey(biom6$above_biomass_g)
+biom6$tukey_bb = transformTukey(biom6$below_biomass_g)
+biom6$tukey_tb = transformTukey(biom6$total_biomass)
+
 ```
 
 Data wrangling - nodules
@@ -197,6 +236,8 @@ nod4 <- subset(nod3, nodules != "NA", select = yard:notes)
 plant7$tukey_height = transformTukey(plant7$height)
 
 ```
+
+*Height figures and model(s)*
 
 Height by species
 ```{r}
@@ -279,8 +320,15 @@ plant7 %>%
   ylab("Volume (cm^3)")
 
 ```
+Height model
+```{r}
 
 
+```
+
+
+
+*Volume Figures and Models*
 
 Volume by Combination and Species
 ```{r}
@@ -369,6 +417,88 @@ plant7 %>%
 
 ```
 
+*Total Biomass figures and model(s)*
+
+total biomass by species
+```{r}
+biom6 %>%
+  ggplot(aes(x=plant_species, y=total_biomass, fill=plant_species)) +
+  geom_boxplot(outlier.shape = NA) +
+  geom_jitter(color="black", size=0.4, alpha=0.9, position = position_jitter(seed = 1)) +
+  theme(
+    legend.position = "none",
+    plot.title = element_text(size=11)
+  ) +
+  ggtitle("Total Biomass by Species") +
+  xlab("Species")+
+  ylab("Biomass (g)")
+```
+
+total biomass vs nitrogen and plant species
+```{r}
+biom6 %>%
+  ggplot(aes(x=plant_species, y=total_biomass, fill=nitrogen)) +
+  geom_boxplot(outlier.shape = NA) +
+  geom_jitter(color="black", size=0.4, alpha=0.9, position = position_jitter(seed = 1)) +
+  theme(
+    plot.title = element_text(size=11)
+  ) +
+  ggtitle("Total Biomass by Species") +
+  xlab("Species")+
+  ylab("Biomass (g)")
+```
+
+total biomass vs. combination
+```{r}
+biom6 %>%
+  ggplot(aes(x=combination, y=total_biomass, fill=combination)) +
+  geom_boxplot(outlier.shape = NA) +
+  geom_jitter(color="black", size=0.4, alpha=0.9, position = position_jitter(seed = 1)) +
+  theme(
+    plot.title = element_text(size=11)
+  ) +
+  ggtitle("Total Biomass by Combination") +
+  xlab("Combination")+
+  ylab("Biomass (g)")
+
+```
+
+total biomass vs combination and nitrogen
+```{r}
+biom6 %>%
+  ggplot(aes(x=combination, y=total_biomass, fill=nitrogen)) +
+  geom_boxplot(outlier.shape = NA) +
+  geom_jitter(color="black", size=0.4, alpha=0.9, position = position_jitter(seed = 1)) +
+  theme(
+    plot.title = element_text(size=11)
+  ) +
+  ggtitle("Total Biomass by Combination") +
+  xlab("Combination")+
+  ylab("Biomass (g)")
+```
+
+model: total biomass - nitrogen, species, mono_hetero w/ yard as random factor
+```{r}
+model3 <- lmer(tukey_tb ~ nitrogen*plant_species*mono_hetero + (1|yard), data = biom6)
+summary(model3)
+anova(model3)
+#qqmat(ranef(model3))
+
+```
+
+model: total biomass - nitrogen, plant species, combination
+uneven sampling (e.g., CnCn can't be a treatment for Ev)
+```{r}
+
+model3 <- lmer(tukey_tb ~ nitrogen*plant_species*combination + (1|yard), data = biom6)
+summary(model3)
+anova(model3)
+
+```
+
+
+*Aboveground Biomass figures and model(s)*
+
 Aboveground biomass by species
 ```{r}
 biom6 %>%
@@ -384,6 +514,62 @@ biom6 %>%
   ylab("Biomass (g)")
 
 ```
+
+abovegound by plant species and nitrogen
+```{r}
+biom6 %>%
+  ggplot(aes(x=plant_species, y=above_biomass_g, fill=nitrogen)) +
+  geom_boxplot(outlier.shape = NA) +
+  geom_jitter(color="black", size=0.4, alpha=0.9, position = position_jitter(seed = 1)) +
+  theme(
+    plot.title = element_text(size=11)
+  ) +
+  ggtitle("Aboveground Biomass by Species") +
+  xlab("Species")+
+  ylab("Biomass (g)")
+```
+
+aboveground vs. combination
+```{r}
+biom6 %>%
+  ggplot(aes(x=combination, y=above_biomass_g, fill=combination)) +
+  geom_boxplot(outlier.shape = NA) +
+  geom_jitter(color="black", size=0.4, alpha=0.9, position = position_jitter(seed = 1)) +
+  theme(
+    plot.title = element_text(size=11)
+  ) +
+  ggtitle("Total Biomass by Combination") +
+  xlab("Combination")+
+  ylab("Biomass (g)")
+```
+
+
+aboveground biomass vs combination and nitrogen
+```{r}
+biom6 %>%
+  ggplot(aes(x=combination, y=above_biomass_g, fill=nitrogen)) +
+  geom_boxplot(outlier.shape = NA) +
+  geom_jitter(color="black", size=0.4, alpha=0.9, position = position_jitter(seed = 1)) +
+  theme(
+    plot.title = element_text(size=11)
+  ) +
+  ggtitle("Total Biomass by Combination") +
+  xlab("Combination")+
+  ylab("Biomass (g)")
+```
+
+model: aboveground biomass - nitrogen, plant species, mono_hetero with yard as random factor
+```{r}
+model6 <- lmer(tukey_ab ~ nitrogen*mono_hetero*plant_species +  (1|yard), data = biom6)
+summary(model6)
+anova(model6)
+
+```
+
+
+
+*Belowground biomass figures and model(s)*
+
 Belowground biomass vs. plant species
 ```{r}
 biom6 %>%
@@ -398,34 +584,8 @@ biom6 %>%
   xlab("Species")+
   ylab("Biomass (g)")
 ```
-total biomass by species
-```{r}
-biom6 %>%
-  ggplot(aes(x=plant_species, y=total_biomass, fill=plant_species)) +
-  geom_boxplot(outlier.shape = NA) +
-  geom_jitter(color="black", size=0.4, alpha=0.9, position = position_jitter(seed = 1)) +
-  theme(
-    legend.position = "none",
-    plot.title = element_text(size=11)
-  ) +
-  ggtitle("Total Biomass by Species") +
-  xlab("Species")+
-  ylab("Biomass (g)")
-```
-abovegound by plant species and nitrogen
-```{r}
-biom6 %>%
-  ggplot(aes(x=plant_species, y=above_biomass_g, fill=nitrogen)) +
-  geom_boxplot(outlier.shape = NA) +
-  geom_jitter(color="black", size=0.4, alpha=0.9, position = position_jitter(seed = 1)) +
-  theme(
-    plot.title = element_text(size=11)
-  ) +
-  ggtitle("Aboveground Biomass by Species") +
-  xlab("Species")+
-  ylab("Biomass (g)")
-```
-below biomass by plant species and nitrogen
+
+belowgound biomass by plant species and nitrogen
 ```{r}
 biom6 %>%
   ggplot(aes(x=plant_species, y=below_biomass_g, fill=nitrogen)) +
@@ -438,32 +598,8 @@ biom6 %>%
   xlab("Species")+
   ylab("Biomass (g)")
 ```
-total biomass vs nitrogen and plant species
-```{r}
-biom6 %>%
-  ggplot(aes(x=plant_species, y=total_biomass, fill=nitrogen)) +
-  geom_boxplot(outlier.shape = NA) +
-  geom_jitter(color="black", size=0.4, alpha=0.9, position = position_jitter(seed = 1)) +
-  theme(
-    plot.title = element_text(size=11)
-  ) +
-  ggtitle("Total Biomass by Species") +
-  xlab("Species")+
-  ylab("Biomass (g)")
-```
-aboveground vs. combination
-```{r}
-biom6 %>%
-  ggplot(aes(x=combination, y=above_biomass_g, fill=combination)) +
-  geom_boxplot(outlier.shape = NA) +
-  geom_jitter(color="black", size=0.4, alpha=0.9, position = position_jitter(seed = 1)) +
-  theme(
-    plot.title = element_text(size=11)
-  ) +
-  ggtitle("Total Biomass by Combination") +
-  xlab("Combination")+
-  ylab("Biomass (g)")
-```
+
+
 belowground biomass vs. combination
 ```{r}
 biom6 %>%
@@ -479,32 +615,7 @@ biom6 %>%
 
 ```
 
-```{r}
-biom6 %>%
-  ggplot(aes(x=combination, y=total_biomass, fill=combination)) +
-  geom_boxplot(outlier.shape = NA) +
-  geom_jitter(color="black", size=0.4, alpha=0.9, position = position_jitter(seed = 1)) +
-  theme(
-    plot.title = element_text(size=11)
-  ) +
-  ggtitle("Total Biomass by Combination") +
-  xlab("Combination")+
-  ylab("Biomass (g)")
 
-```
-aboveground biomass vs combination and nitrogen
-```{r}
-biom6 %>%
-  ggplot(aes(x=combination, y=above_biomass_g, fill=nitrogen)) +
-  geom_boxplot(outlier.shape = NA) +
-  geom_jitter(color="black", size=0.4, alpha=0.9, position = position_jitter(seed = 1)) +
-  theme(
-    plot.title = element_text(size=11)
-  ) +
-  ggtitle("Total Biomass by Combination") +
-  xlab("Combination")+
-  ylab("Biomass (g)")
-```
 belowground biomass combination and nitrogen
 ```{r}
 biom6 %>%
@@ -519,19 +630,18 @@ biom6 %>%
   ylab("Biomass (g)")
 
 ```
-total biomass vs combination and nitrogen
+
+model: belowground biomass - plant species, nitrogen, mono_hetero w/ yard as random factor
 ```{r}
-biom6 %>%
-  ggplot(aes(x=combination, y=total_biomass, fill=nitrogen)) +
-  geom_boxplot(outlier.shape = NA) +
-  geom_jitter(color="black", size=0.4, alpha=0.9, position = position_jitter(seed = 1)) +
-  theme(
-    plot.title = element_text(size=11)
-  ) +
-  ggtitle("Total Biomass by Combination") +
-  xlab("Combination")+
-  ylab("Biomass (g)")
+model8 <- lmer(tukey_bb ~ nitrogen*mono_hetero*plant_species + (1|yard), data = biom6)
+summary(model8)
+anova(model8)
+
 ```
+
+
+
+*Leaf Nitrogen figures and models(s)
 leaf nitrogen vs. nitrogen and plant species
 ```{r}
 ggplot(data = barGraphStats(data = leaves3, variable = "N_Result", byFactorNames = c("nitrogen", "plant_species")), aes(x=plant_species, y=mean, fill=nitrogen)) +
@@ -541,6 +651,8 @@ ggplot(data = barGraphStats(data = leaves3, variable = "N_Result", byFactorNames
   ylab("Percent N") + xlab("Plant Species")
 
 ```
+
+
 leaf nitrogen vs. nitrogen and combination
 ```{r}
 ggplot(data = barGraphStats(data = leaves3, variable = "N_Result", byFactorNames = c("nitrogen", "combination")), aes(x=combination, y=mean, fill=nitrogen)) +
@@ -550,6 +662,8 @@ ggplot(data = barGraphStats(data = leaves3, variable = "N_Result", byFactorNames
   ylab("Percent N") + xlab("combination")
 
 ```
+
+
 leaf nitrogen vs nitrogen, mono_hetero, and plant species
 ```{r}
 ggplot(data = barGraphStats(data = leaves3, variable = "N_Result", byFactorNames = c("nitrogen", "mono_hetero", "plant_species")), aes(x=mono_hetero, y=mean, fill=nitrogen)) +
@@ -559,6 +673,7 @@ ggplot(data = barGraphStats(data = leaves3, variable = "N_Result", byFactorNames
   ylab("Percent N") + xlab("Combination") +
   facet_wrap(~plant_species)
 ```
+
 leaf nitrogen vs. nitrogen and plant species
 ```{r}
 ggplot(data = barGraphStats(data = leaves3, variable = "N_Result", byFactorNames = c("nitrogen", "plant_species")), aes(x=plant_species, y=mean, fill=nitrogen)) +
@@ -569,4 +684,67 @@ ggplot(data = barGraphStats(data = leaves3, variable = "N_Result", byFactorNames
 
 ```
 
+model - leaf nitrogen
+```{r}
+
+modelnitrogenleaves <- lmer(N_Resultlog ~ nitrogen*plant_species*mono_hetero + (1|yard), data = leaves3)
+summary(modelnitrogenleaves)
+anova(modelnitrogenleaves)
+#plot(allEffects(modelnitrogenleaves))
+
+```
+
+
+
+*Root Nitrogen figures and model(s)*
+
+Nitrogen vs plant species
+```{r}
+ggplot(data = barGraphStats(data = leaves3, variable = "N_Result", byFactorNames = c("nitrogen", "plant_species")), aes(x=plant_species, y=mean, fill=nitrogen)) +
+  geom_bar(stat='identity', position=position_dodge()) +
+  geom_errorbar(aes(ymin=mean-se, ymax=mean+se), width = 0.2, position = position_dodge(0.9)) +
+  scale_fill_brewer(palette = "Set1") +
+  ylab("Percent N") + xlab("Plant Species")
+
+```
+
+Nitrogen vs. combination
+```{r}
+ggplot(data = barGraphStats(data = leaves3, variable = "N_Result", byFactorNames = c("nitrogen", "combination")), aes(x=combination, y=mean, fill=nitrogen)) +
+  geom_bar(stat='identity', position=position_dodge()) +
+  geom_errorbar(aes(ymin=mean-se, ymax=mean+se), width = 0.2, position = position_dodge(0.9)) +
+  scale_fill_brewer(palette = "Set1") +
+  ylab("Percent N") + xlab("combination")
+```
+
+root nitrogen vs. nitrogen, mono_hetero, plant species
+```{r}
+ggplot(data = barGraphStats(data = leaves3, variable = "N_Result", byFactorNames = c("nitrogen", "mono_hetero", "plant_species")), aes(x=mono_hetero, y=mean, fill=nitrogen)) +
+  geom_bar(stat='identity', position=position_dodge()) +
+  geom_errorbar(aes(ymin=mean-se, ymax=mean+se), width = 0.2, position = position_dodge(0.9)) +
+  scale_fill_brewer(palette = "Set1") +
+  ylab("Percent N") + xlab("Combination") +
+  facet_wrap(~plant_species)
+```
+root nitrogen vs. plant species, nitrogen
+```{r}
+
+ggplot(data = barGraphStats(data = leaves3, variable = "N_Result", byFactorNames = c("nitrogen", "plant_species")), aes(x=plant_species, y=mean, fill=nitrogen)) +
+  geom_bar(stat='identity', position=position_dodge()) +
+  geom_errorbar(aes(ymin=mean-se, ymax=mean+se), width = 0.2, position = position_dodge(0.9)) +
+  scale_fill_brewer(palette = "Set1") +
+  ylab("Percent N") + xlab("Plant Species")
+
+```
+
+
+model: root nitrogen 
+```{r}
+
+modelnitrogenroots <- lmer(N_Resultlog ~ nitrogen*plant_species*mono_hetero + (1|yard), data = roots3)
+summary(modelnitrogenroots)
+anova(modelnitrogenroots)
+
+
+```
 
