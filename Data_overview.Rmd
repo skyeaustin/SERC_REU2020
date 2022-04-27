@@ -56,7 +56,7 @@ barGraphStats <- function(data, variable, byFactorNames) {
 
 Importing Datasets
 ```{r}
-
+setwd("C:/Users/hrusk/Dropbox (Smithsonian)/SERC_REU_2020/Experiment_Data_and_R_Code/Data/Data_For_Analysis")
 biom1 <- read.csv("plant_biomass_all.csv")
 labels <- read.csv("experimental_design.csv") #spreadsheet for pot specific information
 leaves <- read.csv("leave_CNH_22March2020.csv")
