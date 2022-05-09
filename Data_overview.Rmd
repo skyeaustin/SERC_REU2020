@@ -11,7 +11,7 @@ knitr::opts_chunk$set(echo = TRUE)
 ```
 
 
-Rachael's Working Directory
+Set working directory for session under "Session" drop down for uploading data and saving figures
 ```{r}
 
 ```
@@ -445,19 +445,27 @@ biom6 %>%
   ylab("Biomass (g)")
 ```
 
-total biomass vs nitrogen and plant species
+transformed total biomass vs nitrogen and plant species
 ```{r}
-biom6 %>%
-  ggplot(aes(x=plant_species, y=total_biomass, fill=nitrogen)) +
-  geom_boxplot(outlier.shape = NA) +
-  geom_jitter(color="black", size=0.4, alpha=0.9, position = position_jitter(seed = 1)) +
-  theme(
-    plot.title = element_text(size=11)
-  ) +
-  ggtitle("Total Biomass by Species") +
-  xlab("Species")+
-  ylab("Biomass (g)")
+ggplot(data = barGraphStats(data = biom6, variable = "tukey_tb", byFactorNames = c("nitrogen", "plant_species")), aes(x=plant_species, y=mean, fill=nitrogen)) +
+  geom_bar(stat='identity', position=position_dodge()) +
+  geom_errorbar(aes(ymin=mean-se, ymax=mean+se), width = 0.2, position = position_dodge(0.9)) +
+  scale_fill_brewer(palette = "Set1") +
+  ylab("Tukey Transformed Total Biomass") + xlab("Species")
 ```
+
+not transformed tb vs. nitrogen vs. plant species
+```{r}
+ggplot(data = barGraphStats(data = biom6, variable = "total_biomass", byFactorNames = c("nitrogen", "plant_species")), aes(x=plant_species, y=mean, fill=nitrogen)) +
+  geom_bar(stat='identity', position=position_dodge()) +
+  geom_errorbar(aes(ymin=mean-se, ymax=mean+se), width = 0.2, position = position_dodge(0.9)) +
+  scale_fill_brewer(palette = "Set1") +
+  ylab("Total Biomass") + xlab("Species")
+
+```
+
+
+
 
 total biomass vs. combination
 ```{r}
@@ -527,19 +535,28 @@ biom6 %>%
 
 ```
 
-abovegound by plant species and nitrogen
+transformed abovegound by plant species and nitrogen
 ```{r}
-biom6 %>%
-  ggplot(aes(x=plant_species, y=above_biomass_g, fill=nitrogen)) +
-  geom_boxplot(outlier.shape = NA) +
-  geom_jitter(color="black", size=0.4, alpha=0.9, position = position_jitter(seed = 1)) +
-  theme(
-    plot.title = element_text(size=11)
-  ) +
-  ggtitle("Aboveground Biomass by Species") +
-  xlab("Species")+
-  ylab("Biomass (g)")
+ggplot(data = barGraphStats(data = biom6, variable = "tukey_ab", byFactorNames = c("nitrogen", "plant_species")), aes(x=plant_species, y=mean, fill=nitrogen)) +
+  geom_bar(stat='identity', position=position_dodge()) +
+  geom_errorbar(aes(ymin=mean-se, ymax=mean+se), width = 0.2, position = position_dodge(0.9)) +
+  scale_fill_brewer(palette = "Set1") +
+  ylab("Tukey Transformed Above Ground Biomass (g)") + xlab("Species")
+
 ```
+
+
+not transformed above ground biomass by plant species and nitrogen
+```{r}
+ggplot(data = barGraphStats(data = biom6, variable = "above_biomass_g", byFactorNames = c("nitrogen", "plant_species")), aes(x=plant_species, y=mean, fill=nitrogen)) +
+  geom_bar(stat='identity', position=position_dodge()) +
+  geom_errorbar(aes(ymin=mean-se, ymax=mean+se), width = 0.2, position = position_dodge(0.9)) +
+  scale_fill_brewer(palette = "Set1") +
+  ylab("Above Ground Biomass (g)") + xlab("Species")
+
+```
+
+
 
 aboveground vs. combination
 ```{r}
@@ -628,26 +645,59 @@ biom6 %>%
 ```
 
 
-belowground biomass combination and nitrogen
+transformed belowground biomass species and nitrogen
 ```{r}
-biom6 %>%
-  ggplot(aes(x=combination, y=below_biomass_g, fill=nitrogen)) +
-  geom_boxplot(outlier.shape = NA) +
-  geom_jitter(color="black", size=0.4, alpha=0.9, position = position_jitter(seed = 1)) +
-  theme(
-    plot.title = element_text(size=11)
-  ) +
-  ggtitle("Total Biomass by Combination") +
-  xlab("Combination")+
-  ylab("Biomass (g)")
+ggplot(data = barGraphStats(data = biom6, variable = "tukey_bb", byFactorNames = c("nitrogen", "plant_species")), aes(x=plant_species, y=mean, fill=nitrogen)) +
+  geom_bar(stat='identity', position=position_dodge()) +
+  geom_errorbar(aes(ymin=mean-se, ymax=mean+se), width = 0.2, position = position_dodge(0.9)) +
+  scale_fill_brewer(palette = "Set1") +
+  ylab("Tukey Transformed Belowground Biomass") + xlab("Species")
 
 ```
+
+not transformed below ground biomass combination and nitrogen
+```{r}
+
+ggplot(data = barGraphStats(data = biom6, variable = "below_biomass_g", byFactorNames = c("nitrogen", "plant_species")), aes(x=plant_species, y=mean, fill=nitrogen)) +
+  geom_bar(stat='identity', position=position_dodge()) +
+  geom_errorbar(aes(ymin=mean-se, ymax=mean+se), width = 0.2, position = position_dodge(0.9)) +
+  scale_fill_brewer(palette = "Set1") +
+  ylab("Below ground Biomass (g)") + xlab("Species")
+
+
+```
+
+
 
 model: belowground biomass - plant species, nitrogen, mono_hetero w/ yard as random factor
 ```{r}
 model8 <- lmer(tukey_bb ~ nitrogen*mono_hetero*plant_species + (1|yard), data = biom6)
 summary(model8)
 anova(model8)
+
+```
+
+transformed belowground biomass by species, nitrogen, & mono/hetero
+```{r}
+ggplot(data = barGraphStats(data = biom6, variable = "tukey_bb", byFactorNames = c("nitrogen", "mono_hetero", "plant_species")), aes(x=mono_hetero, y=mean, fill=nitrogen)) +
+  geom_bar(stat='identity', position=position_dodge()) +
+  geom_errorbar(aes(ymin=mean-se, ymax=mean+se), width = 0.2, position = position_dodge(0.9)) +
+  scale_fill_brewer(palette = "Set1") +
+  ylab("Tukey Transformed Below Biomass") + xlab("combination")+
+  facet_wrap(~plant_species)
+
+```
+
+not transformed belowground biomass by species, nitrogen, & mono/hetero
+```{r}
+
+ggplot(data = barGraphStats(data = biom6, variable = "below_biomass_g", byFactorNames = c("nitrogen", "mono_hetero", "plant_species")), aes(x=mono_hetero, y=mean, fill=nitrogen)) +
+  geom_bar(stat='identity', position=position_dodge()) +
+  geom_errorbar(aes(ymin=mean-se, ymax=mean+se), width = 0.2, position = position_dodge(0.9)) +
+  scale_fill_brewer(palette = "Set1") +
+  ylab("Belowground Biomass") + xlab("Combination")+
+  facet_wrap(~plant_species)
+
 
 ```
 
@@ -759,6 +809,17 @@ ggplot(data = barGraphStats(data = leaves3, variable = "N_Result", byFactorNames
   ylab("Percent N") + xlab("Plant Species")
 
 ```
+R N, combination, nitrogen
+```{r}
+ggplot(data = barGraphStats(data = leaves3, variable = "N_Result", byFactorNames = c("nitrogen", "mono_hetero", "plant_species")), aes(x=mono_hetero, y=mean, fill=nitrogen)) +
+  geom_bar(stat='identity', position=position_dodge()) +
+  geom_errorbar(aes(ymin=mean-se, ymax=mean+se), width = 0.2, position = position_dodge(0.9)) +
+  scale_fill_brewer(palette = "Set1") +
+  ylab("Percent N") + xlab("Combination") +
+  facet_wrap(~plant_species)
+
+```
+
 
 
 model: root nitrogen 
@@ -767,6 +828,23 @@ model: root nitrogen
 modelnitrogenroots <- lmer(N_Resultlog ~ nitrogen*plant_species*mono_hetero + (1|yard), data = roots3)
 summary(modelnitrogenroots)
 anova(modelnitrogenroots)
+
+
+```
+
+
+
+Manuscript Figures
+```{r}
+
+#TB -> 
+ggplot(data = barGraphStats(data = biom6, variable = "total_biomass", byFactorNames = c("nitrogen", "plant_species")), aes(x=plant_species, y=mean, fill=nitrogen)) +
+  geom_bar(stat='identity', position=position_dodge()) +
+  geom_errorbar(aes(ymin=mean-se, ymax=mean+se), width = 0.2, position = position_dodge(0.9)) +
+  scale_fill_brewer(palette = "Set1") +
+  ylab("Total Biomass") + xlab("Species")
+
+
 
 
 ```
