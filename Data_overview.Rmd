@@ -86,8 +86,9 @@ plant5$height <- as.numeric(as.character(plant5$height))
 
 #volume column#
 plant6 <- plant5 %>% 
-  mutate(plant_volume = height*width_max*width_perp) 
- 
+  mutate(plant_volume = height*width_max*width_perp) %>%
+  subset(plant5$date == "8/5/2020")
+
 plant7 <- plant6 %>%
   subset(plant6$date == "8/5/2020")%>%
   na.omit(plant6)
@@ -186,6 +187,37 @@ roots3$N_Resultlog <- log(roots3$N_Result)
 ggqqplot(roots3$N_Resultlog)
 shapiro.test(roots3$N_Resultlog)
 ```
+
+Mortality
+```{r}
+mortal <- glmer(dead ~ nitrogen*plant_species*mono_hetero + (1|yard), data = plant6, family = binomial)
+
+summary(mortal)
+anova(mortal)
+
+```
+
+Graph Mortality
+```{r}
+mortality <- plant6 %>%
+  group_by(plant_species, nitrogen, dead) %>%
+  summarise(n = n()) %>%
+  mutate(freq = n/sum(n)) %>%
+  ungroup()
+
+mortality2 <- plant6 %>%
+  group_by(mono_hetero, nitrogen, dead) %>%
+  summarise(n = n()) %>%
+  mutate(freq = n/sum(n)) %>%
+  ungroup()
+
+ggplot(data = mortality2, aes(x=mono_hetero, y=freq, fill=nitrogen)) +
+  geom_bar(stat='identity', position=position_dodge()) +
+  scale_fill_brewer(palette = "Set1") +
+  ylab("frequency") + xlab("competition")
+
+```
+
 
 
 Biomass
